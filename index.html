@@ -21,6 +21,14 @@
    <!-- Contenedor del Menú -->
     <main class="menu-container">
         <h2 class="category-title">Rolls Destacados</h2>
+        <!-- Botones de Filtro -->
+        <div class="filtros-menu">
+            <!-- La clase 'activo' pintará este botón de verde al inicio -->
+            <button class="btn-filtro activo" onclick="filtrarMenu('Todos', this)">Todos</button>
+            <button class="btn-filtro" onclick="filtrarMenu('Rolls', this)">🍣 Rolls</button>
+            <button class="btn-filtro" onclick="filtrarMenu('Entradas', this)">🥟 Entradas</button>
+            <button class="btn-filtro" onclick="filtrarMenu('Bebidas', this)">🥤 Bebidas</button>
+        </div>
         
         <!-- Aquí JavaScript inyectará las tarjetas automáticamente -->
         <div id="contenedor-productos" class="product-grid">

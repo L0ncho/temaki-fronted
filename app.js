@@ -5,14 +5,16 @@ const productosMenu = [
         nombre: "Avocado Roll",
         descripcion: "Salmón, queso crema, envuelto en palta.",
         precio: 6500,
-        imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=300&q=80"
+        imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=300&q=80",
+        categoría: "Rolls"
     },
     {
         id: 2,
         nombre: "Tempura Roll",
         descripcion: "Camarón, cebollín, queso crema, frito en panko.",
         precio: 7200,
-        imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=300&q=80"
+        imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=300&q=80",
+        categoría: "Rolls"
     },
   
     {
@@ -20,17 +22,49 @@ const productosMenu = [
         nombre: "Sashimi Salmón",
         descripcion: "5 cortes de salmón fresco premium.",
         precio: 5500,
-        imagen: "images.png"
+        imagen: "images.png",
+        categoría: "Entradas"
+    },
+    {
+        id: 4,
+        nombre: "Bebida Lata 350cc",
+        descripcion: "Coca-Cola, Sprite, Fanta.",
+        precio: 1500,
+        imagen: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80",
+        categoria: "Bebidas"
     }
 ];
 // ------------------------------
+// Nueva función de filtrado
+function filtrarMenu(categoriaSeleccionada, botonClickeado) {
+    // 1. Quitar la clase 'activo' de todos los botones
+    const botones = document.querySelectorAll('.btn-filtro');
+    botones.forEach(boton => boton.classList.remove('activo'));
+
+    // 2. Agregar la clase 'activo' solo al botón que se hizo clic
+    if (botonClickeado) {
+        botonClickeado.classList.add('activo');
+    }
+
+    // 3. Mandar a cargar el menú con la categoría elegida
+    cargarMenu(categoriaSeleccionada);
+}
 // Función para dibujar el menú automáticamente
-function cargarMenu() {
+function cargarMenu(categoria = 'Todos') {
     const contenedorMenu = document.getElementById('contenedor-productos');
     contenedorMenu.innerHTML = ''; // Limpiamos por si acaso
 
-    productosMenu.forEach(function(producto) {
-        // Creamos la tarjeta HTML inyectando las variables de nuestra base de datos
+    // NUEVO PASO: Filtramos la base de datos antes de dibujarla
+    const productosFiltrados = productosMenu.filter(function(producto) {
+        if (categoria === 'Todos') {
+            return true; // Si es 'Todos', mostramos todos
+        } else {
+            return producto.categoria === categoria; // Solo mostramos los que coinciden
+        }
+    });
+
+    // Ahora dibujamos SOLO los productos que pasaron el filtro (productosFiltrados)
+    productosFiltrados.forEach(function(producto) {
         const tarjetaHTML = `
             <article class="card">
                 <img src="${producto.imagen}" alt="${producto.nombre}" class="card-img">
@@ -43,11 +77,9 @@ function cargarMenu() {
             </article>
         `;
         
-        // La agregamos al contenedor
         contenedorMenu.innerHTML += tarjetaHTML;
     });
 }
-
 
 // 1. Intentamos leer la memoria del navegador. Si no hay nada, iniciamos un arreglo vacío.
 let carrito = JSON.parse(localStorage.getItem('carrito-temaki')) || [];
@@ -71,6 +103,17 @@ function agregarAlCarrito(nombreProducto, precioProducto) {
     carrito.push({ nombre: nombreProducto, precio: precioProducto });
     totalAcumulado = totalAcumulado + precioProducto;
     actualizarPantalla();
+    
+    //  Pequeña notificación emergente (Toast)
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: '¡Agregado al carrito!',
+        showConfirmButton: false,
+        timer: 1000, // Desaparece en 1.5 segundos
+        timerProgressBar: true
+    });
 }
 
 // 2. Modificamos la actualización para sumar el contador del botón
