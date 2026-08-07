@@ -1,3 +1,55 @@
+// --- BASE DE DATOS DEL MENÚ ---
+const productosMenu = [
+    {
+        id: 1,
+        nombre: "Avocado Roll",
+        descripcion: "Salmón, queso crema, envuelto en palta.",
+        precio: 6500,
+        imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=300&q=80"
+    },
+    {
+        id: 2,
+        nombre: "Tempura Roll",
+        descripcion: "Camarón, cebollín, queso crema, frito en panko.",
+        precio: 7200,
+        imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=300&q=80"
+    },
+    // ¡Mira qué fácil es agregar un producto nuevo ahora!
+    {
+        id: 3,
+        nombre: "Sashimi Salmón",
+        descripcion: "5 cortes de salmón fresco premium.",
+        precio: 5500,
+        imagen: "https://images.unsplash.com/photo-1534256958597-7fd685ce0d9c?auto=format&fit=crop&w=300&q=80"
+    }
+];
+// ------------------------------
+// Función para dibujar el menú automáticamente
+function cargarMenu() {
+    const contenedorMenu = document.getElementById('contenedor-productos');
+    contenedorMenu.innerHTML = ''; // Limpiamos por si acaso
+
+    productosMenu.forEach(function(producto) {
+        // Creamos la tarjeta HTML inyectando las variables de nuestra base de datos
+        const tarjetaHTML = `
+            <article class="card">
+                <img src="${producto.imagen}" alt="${producto.nombre}" class="card-img">
+                <div class="card-content">
+                    <h3>${producto.nombre}</h3>
+                    <p>${producto.descripcion}</p>
+                    <span class="price">$${producto.precio}</span>
+                    <button class="btn-add" onclick="agregarAlCarrito('${producto.nombre}', ${producto.precio})">Agregar al carrito</button>
+                </div>
+            </article>
+        `;
+        
+        // La agregamos al contenedor
+        contenedorMenu.innerHTML += tarjetaHTML;
+    });
+}
+
+// Le decimos al navegador que ejecute esta función apenas cargue la página
+window.onload = cargarMenu;
 let carrito = [];
 let totalAcumulado = 0;
 
