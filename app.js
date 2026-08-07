@@ -35,3 +35,34 @@ function actualizarPantalla() {
     // Actualizar el número del precio total en el HTML
     totalHTML.innerText = totalAcumulado;
 }
+function enviarAWhatsApp() {
+    // 1. Validar que el carrito no esté vacío
+    if (carrito.length === 0) {
+        alert("¡Tu carrito está vacío! Agrega algunos sushis primero.");
+        return; // Detiene la función aquí si no hay productos
+    }
+
+    // 2. El número de teléfono del restaurante (con código de país, sin el símbolo +)
+    // Ejemplo para Chile: 56912345678
+    const telefono = "56931717552"; 
+
+    // 3. Empezar a armar el mensaje de texto
+    let mensaje = "🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n";
+
+    // 4. Recorrer el carrito y agregar cada producto al mensaje
+    carrito.forEach(function(producto) {
+        mensaje += `- ${producto.nombre} ($${producto.precio})\n`;
+    });
+
+    // 5. Agregar el total al final del mensaje
+    mensaje += `\n*Total a pagar: $${totalAcumulado}*`;
+
+    // 6. Codificar el texto para que los espacios y saltos de línea funcionen en una URL
+    const mensajeCodificado = encodeURIComponent(mensaje);
+
+    // 7. Crear el enlace oficial de WhatsApp
+    const urlWhatsApp = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
+
+    // 8. Abrir WhatsApp en una nueva pestaña
+    window.open(urlWhatsApp, '_blank');
+}
