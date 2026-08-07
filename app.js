@@ -295,6 +295,11 @@ function enviarAWhatsApp() {
     const urlWhatsApp = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
     
     window.open(urlWhatsApp, '_blank');
+
+    //Vaciar el carrito y actualizar la pantalla después de enviar el pedido
+    carrito = [];
+    actualizarPantalla();
+    cerrarCarrito();
 }
 
 // --- ARRANQUE DE LA APLICACIÓN ---
