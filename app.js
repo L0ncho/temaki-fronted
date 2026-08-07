@@ -292,7 +292,7 @@ function enviarAWhatsApp() {
     mensaje += `\n💰 *Total a pagar: $${totalFinalReal}*`;
 
     const mensajeCodificado = encodeURIComponent(mensaje);
-    const urlWhatsApp = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
+    const urlWhatsApp = `https://api.whatsapp.com/send?phone=${telefono}&text=${mensajeCodificado}`;
     
     window.open(urlWhatsApp, '_blank');
 
@@ -303,8 +303,11 @@ function enviarAWhatsApp() {
 
     const esCelular = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (esCelular) {
+        // Obligamos al navegador a usar la MISMA pestaña actual.
+        // El celular interceptará el enlace y abrirá la app nativa limpiamente.
         window.location.href = urlWhatsApp;
     } else {
+        // En PC sí usamos pestaña nueva para no perder la página del menú
         window.open(urlWhatsApp, '_blank');
     }
 }
