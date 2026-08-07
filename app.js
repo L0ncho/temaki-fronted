@@ -14,13 +14,13 @@ const productosMenu = [
         precio: 7200,
         imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=300&q=80"
     },
-    // ¡Mira qué fácil es agregar un producto nuevo ahora!
+  
     {
         id: 3,
         nombre: "Sashimi Salmón",
         descripcion: "5 cortes de salmón fresco premium.",
         precio: 5500,
-        imagen: "https://images.unsplash.com/photo-1534256958597-7fd685ce0d9c?auto=format&fit=crop&w=300&q=80"
+        imagen: "images.png"
     }
 ];
 // ------------------------------
@@ -48,10 +48,15 @@ function cargarMenu() {
     });
 }
 
-// Le decimos al navegador que ejecute esta función apenas cargue la página
-window.onload = cargarMenu;
-let carrito = [];
+
+// 1. Intentamos leer la memoria del navegador. Si no hay nada, iniciamos un arreglo vacío.
+let carrito = JSON.parse(localStorage.getItem('carrito-temaki')) || [];
 let totalAcumulado = 0;
+
+// 2. Si recuperamos un pedido guardado, recalculamos el total de dinero
+carrito.forEach(function(producto) {
+    totalAcumulado = totalAcumulado + producto.precio;
+});
 
 // 1. Funciones para Abrir y Cerrar el Modal
 function abrirCarrito() {
@@ -90,7 +95,9 @@ function actualizarPantalla() {
     });
 
     totalHTML.innerText = totalAcumulado;
-    contadorHTML.innerText = carrito.length; 
+    contadorHTML.innerText = carrito.length;
+    // Guardar el carrito actualizado en la memoria del navegador
+    localStorage.setItem('carrito-temaki', JSON.stringify(carrito));
 }
 
 function toggleDireccion() {
@@ -166,3 +173,8 @@ function eliminarDelCarrito(index) {
     // 3. Volvemos a dibujar el carrito en pantalla (ahora sin ese producto)
     actualizarPantalla();
 }
+// Le decimos al navegador qué hacer exactamente al cargar la página
+window.onload = function() {
+    cargarMenu();           // Dibuja las tarjetas de los sushis
+    actualizarPantalla();   // Dibuja el carrito por si recuperó productos de la memoria
+};
