@@ -6,7 +6,7 @@ const productosMenu = [
         descripcion: "Salmón, queso crema, envuelto en palta.",
         precio: 6500,
         imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=300&q=80",
-        categoría: "Rolls"
+        categoria: "Rolls"
     },
     {
         id: 2,
@@ -14,7 +14,7 @@ const productosMenu = [
         descripcion: "Camarón, cebollín, queso crema, frito en panko.",
         precio: 7200,
         imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=300&q=80",
-        categoría: "Rolls"
+        categoria: "Rolls"
     },
   
     {
@@ -23,7 +23,7 @@ const productosMenu = [
         descripcion: "5 cortes de salmón fresco premium.",
         precio: 5500,
         imagen: "images.png",
-        categoría: "Entradas"
+        categoria: "Entradas"
     },
     {
         id: 4,
