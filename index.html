@@ -53,7 +53,17 @@
         
         <!-- Lista vacía donde JavaScript inyectará los productos -->
         <ul id="lista-carrito"></ul>
-        
+        <!-- Formulario de Datos del Cliente -->
+        <div class="customer-data">
+            <input type="text" id="cliente-nombre" placeholder="Tu Nombre (Ej: Alonso)" class="form-input">
+            
+            <select id="cliente-metodo" class="form-input" onchange="toggleDireccion()">
+                <option value="delivery">Delivery</option>
+                <option value="retiro">Retiro en Tienda</option>
+            </select>
+
+            <input type="text" id="cliente-direccion" placeholder="Dirección (Ej: Av. San Martín, Viña del Mar)" class="form-input">
+        </div>
         <!-- Total a pagar -->
         <div class="cart-total">
             <h3>Total: $<span id="total-precio">0</span></h3>

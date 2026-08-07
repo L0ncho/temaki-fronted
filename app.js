@@ -35,34 +35,65 @@ function actualizarPantalla() {
     // Actualizar el número del precio total en el HTML
     totalHTML.innerText = totalAcumulado;
 }
+// Función para ocultar la dirección si elige "Retiro"
+function toggleDireccion() {
+    const metodo = document.getElementById('cliente-metodo').value;
+    const inputDireccion = document.getElementById('cliente-direccion');
+    
+    if (metodo === 'retiro') {
+        inputDireccion.style.display = 'none'; // Oculta la casilla
+    } else {
+        inputDireccion.style.display = 'block'; // Muestra la casilla
+    }
+}
+
+// Nueva versión de la función de WhatsApp
 function enviarAWhatsApp() {
     // 1. Validar que el carrito no esté vacío
     if (carrito.length === 0) {
         alert("¡Tu carrito está vacío! Agrega algunos sushis primero.");
-        return; // Detiene la función aquí si no hay productos
+        return;
     }
 
-    // 2. El número de teléfono del restaurante (con código de país, sin el símbolo +)
-    // Ejemplo para Chile: 56912345678
-    const telefono = "56931717552"; 
+    // 2. Capturar los datos del cliente
+    const nombre = document.getElementById('cliente-nombre').value;
+    const metodo = document.getElementById('cliente-metodo').value;
+    const direccion = document.getElementById('cliente-direccion').value;
 
-    // 3. Empezar a armar el mensaje de texto
-    let mensaje = "🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n";
+    // 3. Validar que no dejen campos vacíos
+    if (nombre.trim() === '') {
+        alert("Por favor, ingresa tu nombre para el pedido.");
+        return;
+    }
+    if (metodo === 'delivery' && direccion.trim() === '') {
+        alert("Por favor, ingresa tu dirección para el delivery.");
+        return;
+    }
 
-    // 4. Recorrer el carrito y agregar cada producto al mensaje
+    const telefono = "56912345678"; 
+
+    // 4. Armar el mensaje incluyendo los datos del cliente
+    let mensaje = `🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n`;
+    mensaje += `👤 *Cliente:* ${nombre}\n`;
+    
+    if (metodo === 'delivery') {
+        mensaje += `🛵 *Método:* Delivery\n`;
+        mensaje += `📍 *Dirección:* ${direccion}\n\n`;
+    } else {
+        mensaje += `🏪 *Método:* Retiro en Tienda\n\n`;
+    }
+
+    mensaje += `📝 *Mi Pedido:*\n`;
+
+    // Recorrer el carrito
     carrito.forEach(function(producto) {
         mensaje += `- ${producto.nombre} ($${producto.precio})\n`;
     });
 
-    // 5. Agregar el total al final del mensaje
-    mensaje += `\n*Total a pagar: $${totalAcumulado}*`;
+    mensaje += `\n💰 *Total a pagar: $${totalAcumulado}*`;
 
-    // 6. Codificar el texto para que los espacios y saltos de línea funcionen en una URL
     const mensajeCodificado = encodeURIComponent(mensaje);
-
-    // 7. Crear el enlace oficial de WhatsApp
     const urlWhatsApp = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
-
-    // 8. Abrir WhatsApp en una nueva pestaña
+    
     window.open(urlWhatsApp, '_blank');
 }
