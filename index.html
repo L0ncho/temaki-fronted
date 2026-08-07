@@ -17,7 +17,7 @@
         <button class="btn-ver-carrito" onclick="abrirCarrito()"> Ver mi pedido (<span id="contador-carrito">0</span>)</button>
     </header>
 
-    <!-- Contenedor del Menú -->
+    
    <!-- Contenedor del Menú -->
     <main class="menu-container">
         <h2 class="category-title">Rolls Destacados</h2>
@@ -28,6 +28,7 @@
             <button class="btn-filtro" onclick="filtrarMenu('Rolls', this)">🍣 Rolls</button>
             <button class="btn-filtro" onclick="filtrarMenu('Entradas', this)">🥟 Entradas</button>
             <button class="btn-filtro" onclick="filtrarMenu('Bebidas', this)">🥤 Bebidas</button>
+            <button class="btn-filtro" onclick="filtrarMenu('Extras', this)"> ➕ Agregados</button>
         </div>
         
         <!-- Aquí JavaScript inyectará las tarjetas automáticamente -->
@@ -55,6 +56,26 @@
                     <option value="delivery"> Delivery</option>
                     <option value="retiro"> Retiro en Tienda</option>
                 </select>
+                <div class="customer-data">
+                <input type="text" id="cliente-nombre" placeholder="Tu Nombre (Ej: Alonso)" class="form-input">
+                
+                <select id="cliente-metodo" class="form-input" onchange="toggleDireccion()">
+                    <option value="delivery">🛵 Delivery</option>
+                    <option value="retiro">🏪 Retiro en Tienda</option>
+                </select>
+
+                <!-- NUEVO: Selector de Comuna -->
+                <select id="cliente-comuna" class="form-input" onchange="actualizarPantalla()">
+                    <option value="0">Selecciona tu comuna...</option>
+                    <option value="1000">Puchuncaví (+$1.000)</option>
+                    <option value="1500">El runge (+$1.500)</option>
+                    
+                </select>
+
+                <input type="text" id="cliente-direccion" placeholder="Dirección exacta (Ej: Av. San Martín 123)" class="form-input">
+                
+                <textarea id="cliente-instrucciones" placeholder="Instrucciones especiales (Ej: Sin soya, extra wasabi)" class="form-input" rows="2"></textarea>
+            </div>
 
                 <input type="text" id="cliente-direccion" placeholder="Dirección (Ej: Av. San Martín, Viña del Mar)" class="form-input">
                 
