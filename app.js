@@ -112,50 +112,69 @@ function toggleDireccion() {
 }
 
 // 3. Modificamos WhatsApp para agregar las Instrucciones
+// 3. Modificamos WhatsApp para agregar las Alertas Modernas
 function enviarAWhatsApp() {
     if (carrito.length === 0) {
-        alert("¡Tu carrito está vacío! Agrega algunos sushis primero.");
+        // Alerta moderna: Carrito vacío
+        Swal.fire({
+            icon: 'warning',
+            title: '¡Tu carrito está vacío!',
+            text: 'Agrega algunos deliciosos sushis primero.',
+            confirmButtonColor: '#32cd32' // Color verde de Temaki
+        });
         return;
     }
 
     const nombre = document.getElementById('cliente-nombre').value;
     const metodo = document.getElementById('cliente-metodo').value;
     const direccion = document.getElementById('cliente-direccion').value;
-    const instrucciones = document.getElementById('cliente-instrucciones').value; // Capturamos las instrucciones
+    const instrucciones = document.getElementById('cliente-instrucciones').value;
 
     if (nombre.trim() === '') {
-        alert("Por favor, ingresa tu nombre para el pedido.");
+        // Alerta moderna: Falta nombre
+        Swal.fire({
+            icon: 'error',
+            title: 'Faltan datos',
+            text: 'Por favor, ingresa tu nombre para el pedido.',
+            confirmButtonColor: '#32cd32'
+        });
         return;
     }
+    
     if (metodo === 'delivery' && direccion.trim() === '') {
-        alert("Por favor, ingresa tu dirección para el delivery.");
+        // Alerta moderna: Falta dirección
+        Swal.fire({
+            icon: 'error',
+            title: 'Faltan datos',
+            text: 'Por favor, ingresa tu dirección para el delivery.',
+            confirmButtonColor: '#32cd32'
+        });
         return;
     }
 
     const telefono = "56931717552"; 
 
     let mensaje = `🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n`;
-    mensaje += ` *Cliente:* ${nombre}\n`;
+    mensaje += `👤 *Cliente:* ${nombre}\n`;
     
     if (metodo === 'delivery') {
-        mensaje += ` *Método:* Delivery\n`;
-        mensaje += ` *Dirección:* ${direccion}\n\n`;
+        mensaje += `🛵 *Método:* Delivery\n`;
+        mensaje += `📍 *Dirección:* ${direccion}\n\n`;
     } else {
-        mensaje += ` *Método:* Retiro en Tienda\n\n`;
+        mensaje += `🏪 *Método:* Retiro en Tienda\n\n`;
     }
 
-    mensaje += ` *Mi Pedido:*\n`;
+    mensaje += `📝 *Mi Pedido:*\n`;
 
     carrito.forEach(function(producto) {
         mensaje += `- ${producto.nombre} ($${producto.precio})\n`;
     });
 
-    // Agregamos las instrucciones al texto si el cliente escribió algo
     if (instrucciones.trim() !== '') {
-        mensaje += `\n *Instrucciones Especiales:* ${instrucciones}\n`;
+        mensaje += `\n💬 *Instrucciones Especiales:* ${instrucciones}\n`;
     }
 
-    mensaje += `\n *Total a pagar: $${totalAcumulado}*`;
+    mensaje += `\n💰 *Total a pagar: $${totalAcumulado}*`;
 
     const mensajeCodificado = encodeURIComponent(mensaje);
     const urlWhatsApp = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
