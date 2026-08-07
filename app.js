@@ -85,10 +85,7 @@ function cargarMenu(categoria = 'Todos') {
 let carrito = JSON.parse(localStorage.getItem('carrito-temaki')) || [];
 let totalAcumulado = 0;
 
-// 2. Si recuperamos un pedido guardado, recalculamos el total de dinero
-carrito.forEach(function(producto) {
-    totalAcumulado = totalAcumulado + producto.precio;
-});
+
 
 // 1. Funciones para Abrir y Cerrar el Modal
 function abrirCarrito() {
@@ -100,48 +97,73 @@ function cerrarCarrito() {
 }
 
 function agregarAlCarrito(nombreProducto, precioProducto) {
-    carrito.push({ nombre: nombreProducto, precio: precioProducto });
-    totalAcumulado = totalAcumulado + precioProducto;
+    // Buscamos si el sushi ya existe en el arreglo
+    const indice = carrito.findIndex(producto => producto.nombre === nombreProducto);
+
+    if (indice !== -1) {
+        // Si ya existe (el índice no es -1), le sumamos 1 a la cantidad
+        carrito[indice].cantidad += 1;
+    } else {
+        // Si no existe, lo agregamos con una nueva propiedad: cantidad 1
+        carrito.push({ nombre: nombreProducto, precio: precioProducto, cantidad: 1 });
+    }
+
     actualizarPantalla();
     
-    //  Pequeña notificación emergente (Toast)
     Swal.fire({
         toast: true,
         position: 'top-end',
         icon: 'success',
         title: '¡Agregado al carrito!',
         showConfirmButton: false,
-        timer: 1000, // Desaparece en 1.5 segundos
+        timer: 1000,
         timerProgressBar: true
     });
 }
 
-// 2. Modificamos la actualización para sumar el contador del botón
 function actualizarPantalla() {
     const listaHTML = document.getElementById('lista-carrito');
     const totalHTML = document.getElementById('total-precio');
     const contadorHTML = document.getElementById('contador-carrito');
 
     listaHTML.innerHTML = '';
+    totalAcumulado = 0; // Lo recalculamos desde 0 cada vez que se actualiza la pantalla
+    let totalProductos = 0; // Para el contador rojo del botón superior
 
-    // Agregamos 'index' para saber exactamente en qué posición está cada sushi
     carrito.forEach(function(producto, index) {
+        // Validación de seguridad para pedidos antiguos guardados en la memoria
+        if (!producto.cantidad) producto.cantidad = 1; 
+
+        // Calculamos el subtotal (precio * cantidad)
+        const subtotal = producto.precio * producto.cantidad;
+        totalAcumulado += subtotal; 
+        totalProductos += producto.cantidad; 
+
         const itemLi = document.createElement('li');
-        
-        // Inyectamos el texto y el botón de eliminar, pasándole el index (0, 1, 2, etc.)
         itemLi.innerHTML = `
-            <span>${producto.nombre} - $${producto.precio}</span>
+            <span><b>${producto.cantidad}x</b> ${producto.nombre} - $${subtotal}</span>
             <button class="btn-eliminar" onclick="eliminarDelCarrito(${index})">🗑️</button>
         `;
-        
         listaHTML.appendChild(itemLi);
     });
 
     totalHTML.innerText = totalAcumulado;
-    contadorHTML.innerText = carrito.length;
-    // Guardar el carrito actualizado en la memoria del navegador
+    contadorHTML.innerText = totalProductos;
+    
     localStorage.setItem('carrito-temaki', JSON.stringify(carrito));
 }
+
+function eliminarDelCarrito(index) {
+    if (carrito[index].cantidad > 1) {
+        // Si hay más de uno, solo restamos 1 a la cantidad
+        carrito[index].cantidad -= 1;
+    } else {
+        // Si solo queda 1, eliminamos la línea completa del carrito
+        carrito.splice(index, 1);
+    }
+    actualizarPantalla();
+}
+
 
 function toggleDireccion() {
     const metodo = document.getElementById('cliente-metodo').value;
@@ -210,8 +232,11 @@ function enviarAWhatsApp() {
     mensaje += `📝 *Mi Pedido:*\n`;
 
     carrito.forEach(function(producto) {
-        mensaje += `- ${producto.nombre} ($${producto.precio})\n`;
+        const subtotal = producto.precio * producto.cantidad;
+        mensaje += `- ${producto.cantidad}x ${producto.nombre} ($${subtotal})\n`;
     });
+
+    // Agregamos las instrucciones...
 
     if (instrucciones.trim() !== '') {
         mensaje += `\n💬 *Instrucciones Especiales:* ${instrucciones}\n`;
@@ -224,19 +249,3 @@ function enviarAWhatsApp() {
     
     window.open(urlWhatsApp, '_blank');
 }
-// Función para eliminar un producto específico
-function eliminarDelCarrito(index) {
-    // 1. Restamos el precio del producto eliminado de nuestro total
-    totalAcumulado = totalAcumulado - carrito[index].precio;
-    
-    // 2. Eliminamos el elemento del arreglo usando splice(posición, cantidad de elementos a borrar)
-    carrito.splice(index, 1);
-    
-    // 3. Volvemos a dibujar el carrito en pantalla (ahora sin ese producto)
-    actualizarPantalla();
-}
-// Le decimos al navegador qué hacer exactamente al cargar la página
-window.onload = function() {
-    cargarMenu();           // Dibuja las tarjetas de los sushis
-    actualizarPantalla();   // Dibuja el carrito por si recuperó productos de la memoria
-};
