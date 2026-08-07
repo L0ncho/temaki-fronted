@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-    
 <head>
     <meta charset="UTF-8">
     <!-- Esta línea es mágica: le dice a los celulares que adapten la pantalla -->
@@ -31,7 +30,7 @@
                     <h3>Avocado Roll</h3>
                     <p>Salmón, queso crema, envuelto en palta.</p>
                     <span class="price">$6.500</span>
-                    <button class="btn-add">Agregar al carrito</button>
+                    <button class="btn-add" onclick="agregarAlCarrito('Avocado Roll', 6500)">Agregar al carrito</button>
                 </div>
             </article>
 
@@ -42,12 +41,12 @@
                     <h3>Tempura Roll</h3>
                     <p>Camarón, cebollín, queso crema, frito en panko.</p>
                     <span class="price">$7.200</span>
-                    <button class="btn-add">Agregar al carrito</button>
+                    <button class="btn-add" onclick="agregarAlCarrito('Tempura Roll', 7200)">Agregar al carrito</button>
                 </div>
             </article>
 
         </div>
     </main>
-
+<script src="app.js"></script>
 </body>
 </html>
