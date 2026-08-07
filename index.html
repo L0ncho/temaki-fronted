@@ -14,6 +14,7 @@
     <header class="header">
         <img src="logo.png" alt="Logo de Temaki Sushi" class="logo-img">
         <p>El mejor sabor, directo a tu mesa</p>
+        <button class="btn-ver-carrito" onclick="abrirCarrito()"> Ver mi pedido (<span id="contador-carrito">0</span>)</button>
     </header>
 
     <!-- Contenedor del Menú -->
@@ -48,28 +49,39 @@
         </div>
     </main>
     <!-- Contenedor del Carrito de Compras -->
-    <aside class="cart-container">
-        <h2>Tu Pedido</h2>
+    <!-- Fondo oscuro del Modal -->
+    <div class="modal-overlay" id="modal-carrito">
         
-        <!-- Lista vacía donde JavaScript inyectará los productos -->
-        <ul id="lista-carrito"></ul>
-        <!-- Formulario de Datos del Cliente -->
-        <div class="customer-data">
-            <input type="text" id="cliente-nombre" placeholder="Tu Nombre (Ej: Alonso)" class="form-input">
+        <!-- Contenedor del Carrito (Panel lateral) -->
+        <aside class="cart-container">
+            <div class="cart-header">
+                <h2> Tu Pedido</h2>
+                <button class="btn-cerrar" onclick="cerrarCarrito()">❌</button>
+            </div>
             
-            <select id="cliente-metodo" class="form-input" onchange="toggleDireccion()">
-                <option value="delivery">Delivery</option>
-                <option value="retiro">Retiro en Tienda</option>
-            </select>
+            <ul id="lista-carrito"></ul>
+            
+            <div class="customer-data">
+                <input type="text" id="cliente-nombre" placeholder="Tu Nombre (Ej: Alonso)" class="form-input">
+                
+                <select id="cliente-metodo" class="form-input" onchange="toggleDireccion()">
+                    <option value="delivery"> Delivery</option>
+                    <option value="retiro"> Retiro en Tienda</option>
+                </select>
 
-            <input type="text" id="cliente-direccion" placeholder="Dirección (Ej: Av. San Martín, Viña del Mar)" class="form-input">
-        </div>
-        <!-- Total a pagar -->
-        <div class="cart-total">
-            <h3>Total: $<span id="total-precio">0</span></h3>
-            <button class="btn-checkout" onclick="enviarAWhatsApp()">Enviar a WhatsApp</button>
-        </div>
-    </aside>
+                <input type="text" id="cliente-direccion" placeholder="Dirección (Ej: Av. San Martín, Viña del Mar)" class="form-input">
+                
+                <!-- NUEVO: Campo de Instrucciones Especiales -->
+                <textarea id="cliente-instrucciones" placeholder="Instrucciones especiales (Ej: Sin soya, extra wasabi)" class="form-input" rows="2"></textarea>
+            </div>
+
+            <div class="cart-total">
+                <h3>Total: $<span id="total-precio">0</span></h3>
+                <button class="btn-checkout" onclick="enviarAWhatsApp()">Enviar a WhatsApp</button>
+            </div>
+        </aside>
+
+    </div>
 <script src="app.js"></script>
 </body>
 </html>
