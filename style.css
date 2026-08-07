@@ -92,3 +92,8 @@ body {
 .btn-add:hover {
     background-color: #1a252f;
 }
+.logo-img {
+    max-width: 150px; /* Controla el ancho máximo. Súbelo o bájalo a tu gusto */
+    height: auto;     /* Mantiene las proporciones para que no se deforme */
+    margin-bottom: 10px; /* Le da una pequeña separación con el texto de abajo */
+}
