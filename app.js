@@ -300,6 +300,13 @@ function enviarAWhatsApp() {
     carrito = [];
     actualizarPantalla();
     cerrarCarrito();
+
+    const esCelular = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (esCelular) {
+        window.location.href = urlWhatsApp;
+    } else {
+        window.open(urlWhatsApp, '_blank');
+    }
 }
 
 // --- ARRANQUE DE LA APLICACIÓN ---
