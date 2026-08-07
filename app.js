@@ -21,7 +21,7 @@ const productosMenu = [
         nombre: "Sashimi Salmón",
         descripcion: "5 cortes de salmón fresco premium.",
         precio: 5500,
-        imagen: "sashimi.jpg",
+        imagen: "images.png",
         categoria: "Entradas" 
     },
     {
