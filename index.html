@@ -17,8 +17,7 @@
         <button class="btn-ver-carrito" onclick="abrirCarrito()"> Ver mi pedido (<span id="contador-carrito">0</span>)</button>
     </header>
 
-    
-   <!-- Contenedor del Menú -->
+    <!-- Contenedor del Menú -->
     <main class="menu-container">
         <h2 class="category-title">Rolls Destacados</h2>
         <!-- Botones de Filtro -->
@@ -28,7 +27,6 @@
             <button class="btn-filtro" onclick="filtrarMenu('Rolls', this)">🍣 Rolls</button>
             <button class="btn-filtro" onclick="filtrarMenu('Entradas', this)">🥟 Entradas</button>
             <button class="btn-filtro" onclick="filtrarMenu('Bebidas', this)">🥤 Bebidas</button>
-            
         </div>
         
         <!-- Aquí JavaScript inyectará las tarjetas automáticamente -->
@@ -36,9 +34,10 @@
             <!-- ¡Vacío! El código limpio es hermoso -->
         </div>
     </main>
+
     <!-- Contenedor del Carrito de Compras -->
     <!-- Fondo oscuro del Modal -->
-    <div class="modal-overlay" id="modal-carrito">
+    <div class="modal-overlay" id="modal-carrito" style="display: none;">
         
         <!-- Contenedor del Carrito (Panel lateral) -->
         <aside class="cart-container">
@@ -48,62 +47,62 @@
             </div>
             
             <ul id="lista-carrito"></ul>
-            <!-- NUEVO: Sección de Extras / Upsell -->
+            
+            <!-- Sección de Extras / Upsell -->
             <div class="extras-carrito">
                 <h4>¿Deseas agregar algo más?</h4>
                 <div class="opciones-extras">
                     <label>
-                        <input type="checkbox" class="chk-extra" value="1000" data-nombre="Extra Palta" onchange="actualizarPantalla()"> 
+                        <input type="checkbox" class="chk-extra" value="2000" data-nombre="Extra Palta" onchange="actualizarPantalla()"> 
                         Extra Palta (+$2.000)
                     </label>
                     <label>
-                        <input type="checkbox" class="chk-extra" value="300" data-nombre="Extra Soya" onchange="actualizarPantalla()"> 
+                        <input type="checkbox" class="chk-extra" value="700" data-nombre="Extra Soya" onchange="actualizarPantalla()"> 
                         Extra Soya (+$700)
                     </label>
                     <label>
-                        <input type="checkbox" class="chk-extra" value="500" data-nombre="Salsa Teriyaki" onchange="actualizarPantalla()"> 
+                        <input type="checkbox" class="chk-extra" value="800" data-nombre="Salsa Teriyaki" onchange="actualizarPantalla()"> 
                         Salsa Teriyaki (+$800)
                     </label>
                 </div>
             </div>
             
+            <!-- Datos del cliente -->
             <div class="customer-data">
                 <input type="text" id="cliente-nombre" placeholder="Tu Nombre (Ej: Alonso)" class="form-input">
-                
                 
                 <select id="cliente-metodo" class="form-input" onchange="toggleDireccion()">
                     <option value="delivery">🛵 Delivery</option>
                     <option value="retiro">🏪 Retiro en Tienda</option>
                 </select>
 
-                <!-- NUEVO: Selector de Comuna -->
+                <!-- Selector de Comuna -->
                 <select id="cliente-comuna" class="form-input" onchange="actualizarPantalla()">
                     <option value="0">Selecciona tu comuna...</option>
                     <option value="2000">Puchuncaví (+$2.000)</option>
                     <option value="5000">Maitencillo (+$5.000)</option>
-                    <option value="2500">Campiche(+$2.500)</option>
-                    <option value="3500">La greda (+$3.500)</option>
+                    <option value="2500">Campiche (+$2.500)</option>
+                    <option value="3500">La Greda (+$3.500)</option>
                     <option value="4000">Ventanas (+$4.000)</option>
                     <option value="4000">Chocota (+$4.000)</option>
-                    <option value="5000">Horcon (+$5.000)</option>
-                    
+                    <option value="5000">Horcón (+$5.000)</option>
                 </select>
-
-            </div>
 
                 <input type="text" id="cliente-direccion" placeholder="Dirección (Ej: Av. San Martín, Viña del Mar)" class="form-input">
                 
-                <!-- NUEVO: Campo de Instrucciones Especiales -->
+                <!-- Campo de Instrucciones Especiales -->
                 <textarea id="cliente-instrucciones" placeholder="Instrucciones especiales (Ej: Sin soya, extra wasabi)" class="form-input" rows="2"></textarea>
-            </div>
+            </div> <!-- ¡Aquí es donde debe cerrar realmente este contenedor! -->
 
+            <!-- Total a pagar y botón -->
             <div class="cart-total">
-                <h3>Total: $<span id="total-precio">0</span></h3>
+                <h3 id="total-precio">0</h3>
                 <button class="btn-checkout" onclick="enviarAWhatsApp()">Enviar a WhatsApp</button>
             </div>
         </aside>
-
     </div>
+
+    <!-- Librerías y Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="app.js"></script>
 </body>
