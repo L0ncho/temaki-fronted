@@ -70,7 +70,7 @@ function enviarAWhatsApp() {
         return;
     }
 
-    const telefono = "56912345678"; 
+    const telefono = "56931717552"; 
 
     // 4. Armar el mensaje incluyendo los datos del cliente
     let mensaje = `🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n`;
