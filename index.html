@@ -2,44 +2,40 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Esta línea es mágica: le dice a los celulares que adapten la pantalla -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temaki Sushi | Menú</title>
-    <!-- Aquí conectamos nuestro archivo de diseño -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
-    <!-- Encabezado de la página -->
     <header class="header">
         <img src="logo.png" alt="Logo de Temaki Sushi" class="logo-img">
         <p>El mejor sabor, directo a tu mesa</p>
         <button class="btn-ver-carrito" onclick="abrirCarrito()"> Ver mi pedido (<span id="contador-carrito">0</span>)</button>
     </header>
 
-    <!-- Contenedor del Menú -->
     <main class="menu-container">
         <h2 class="category-title">Rolls Destacados</h2>
-        <!-- Botones de Filtro -->
+        
         <div class="filtros-menu">
-            <!-- La clase 'activo' pintará este botón de verde al inicio -->
             <button class="btn-filtro activo" onclick="filtrarMenu('Todos', this)">Todos</button>
             <button class="btn-filtro" onclick="filtrarMenu('Rolls', this)">🍣 Rolls</button>
             <button class="btn-filtro" onclick="filtrarMenu('Entradas', this)">🥟 Entradas</button>
             <button class="btn-filtro" onclick="filtrarMenu('Bebidas', this)">🥤 Bebidas</button>
         </div>
         
-        <!-- Aquí JavaScript inyectará las tarjetas automáticamente -->
         <div id="contenedor-productos" class="product-grid">
-            <!-- ¡Vacío! El código limpio es hermoso -->
         </div>
     </main>
 
-    <!-- Contenedor del Carrito de Compras -->
-    <!-- Fondo oscuro del Modal -->
-    <div class="modal-overlay" id="modal-carrito" style="display: none;">
+    
+    <button class="btn-flotante" onclick="abrirCarrito()">
+        🛒 Ver Pedido (<span id="contador-flotante">0</span>)
+    </button>
+
+    <!-- Contenedor del Carrito -->
+    <div class="modal-overlay" id="modal-carrito">
         
-        <!-- Contenedor del Carrito (Panel lateral) -->
         <aside class="cart-container">
             <div class="cart-header">
                 <h2> Tu Pedido</h2>
@@ -48,7 +44,6 @@
             
             <ul id="lista-carrito"></ul>
             
-            <!-- Sección de Extras / Upsell -->
             <div class="extras-carrito">
                 <h4>¿Deseas agregar algo más?</h4>
                 <div class="opciones-extras">
@@ -67,7 +62,6 @@
                 </div>
             </div>
             
-            <!-- Datos del cliente -->
             <div class="customer-data">
                 <input type="text" id="cliente-nombre" placeholder="Tu Nombre (Ej: Alonso)" class="form-input">
                 
@@ -76,7 +70,6 @@
                     <option value="retiro">🏪 Retiro en Tienda</option>
                 </select>
 
-                <!-- Selector de Comuna -->
                 <select id="cliente-comuna" class="form-input" onchange="actualizarPantalla()">
                     <option value="0">Selecciona tu comuna...</option>
                     <option value="2000">Puchuncaví (+$2.000)</option>
@@ -90,19 +83,19 @@
 
                 <input type="text" id="cliente-direccion" placeholder="Dirección (Ej: Av. San Martín, Viña del Mar)" class="form-input">
                 
-                <!-- Campo de Instrucciones Especiales -->
                 <textarea id="cliente-instrucciones" placeholder="Instrucciones especiales (Ej: Sin soya, extra wasabi)" class="form-input" rows="2"></textarea>
-            </div> <!-- ¡Aquí es donde debe cerrar realmente este contenedor! -->
+            </div>
 
-            <!-- Total a pagar y botón -->
             <div class="cart-total">
                 <h3 id="total-precio">0</h3>
                 <button class="btn-checkout" onclick="enviarAWhatsApp()">Enviar a WhatsApp</button>
+                
+                <!-- NUEVO: Botón de Pánico -->
+                <button class="btn-vaciar" onclick="vaciarCarrito()">🗑️ Vaciar pedido</button>
             </div>
         </aside>
     </div>
 
-    <!-- Librerías y Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="app.js"></script>
 </body>

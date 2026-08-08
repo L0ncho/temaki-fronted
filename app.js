@@ -1,50 +1,16 @@
 // --- BASE DE DATOS DEL MENÚ ---
 const productosMenu = [
-    {
-        id: 1,
-        nombre: "Avocado Roll",
-        descripcion: "Salmón, queso crema, envuelto en palta.",
-        precio: 6500,
-        imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=300&q=80",
-        categoria: "Rolls" 
-    },
-    {
-        id: 2,
-        nombre: "Tempura Roll",
-        descripcion: "Camarón, cebollín, queso crema, frito en panko.",
-        precio: 7200,
-        imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=300&q=80",
-        categoria: "Rolls" 
-    },
-    {
-        id: 3,
-        nombre: "Sashimi Salmón",
-        descripcion: "5 cortes de salmón fresco premium.",
-        precio: 5500,
-        imagen: "images.png",
-        categoria: "Entradas" 
-    },
-    {
-        id: 4,
-        nombre: "Bebida Lata 350cc",
-        descripcion: "Coca-Cola, Sprite, Fanta.",
-        precio: 1500,
-        imagen: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80",
-        categoria: "Bebidas"
-    }
-    // Eliminamos los agregados de aquí para que no salgan como tarjetas gigantes
+    { id: 1, nombre: "Avocado Roll", descripcion: "Salmón, queso crema, envuelto en palta.", precio: 6500, imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=300&q=80", categoria: "Rolls" },
+    { id: 2, nombre: "Tempura Roll", descripcion: "Camarón, cebollín, queso crema, frito en panko.", precio: 7200, imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=300&q=80", categoria: "Rolls" },
+    { id: 3, nombre: "Sashimi Salmón", descripcion: "5 cortes de salmón fresco premium.", precio: 5500, imagen: "images.png", categoria: "Entradas" },
+    { id: 4, nombre: "Bebida Lata 350cc", descripcion: "Coca-Cola, Sprite, Fanta.", precio: 1500, imagen: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80", categoria: "Bebidas" }
 ];
-// ------------------------------
 
 // --- LÓGICA DE FILTROS Y MENÚ ---
 function filtrarMenu(categoriaSeleccionada, botonClickeado) {
     const botones = document.querySelectorAll('.btn-filtro');
     botones.forEach(boton => boton.classList.remove('activo'));
-
-    if (botonClickeado) {
-        botonClickeado.classList.add('activo');
-    }
-
+    if (botonClickeado) botonClickeado.classList.add('activo');
     cargarMenu(categoriaSeleccionada);
 }
 
@@ -53,11 +19,8 @@ function cargarMenu(categoria = 'Todos') {
     contenedorMenu.innerHTML = ''; 
 
     const productosFiltrados = productosMenu.filter(function(producto) {
-        if (categoria === 'Todos') {
-            return true; 
-        } else {
-            return producto.categoria === categoria; 
-        }
+        if (categoria === 'Todos') return true; 
+        return producto.categoria === categoria; 
     });
 
     productosFiltrados.forEach(function(producto) {
@@ -72,7 +35,6 @@ function cargarMenu(categoria = 'Todos') {
                 </div>
             </article>
         `;
-        
         contenedorMenu.innerHTML += tarjetaHTML;
     });
 }
@@ -81,13 +43,44 @@ function cargarMenu(categoria = 'Todos') {
 let carrito = JSON.parse(localStorage.getItem('carrito-temaki')) || [];
 let totalAcumulado = 0;
 
-// --- FUNCIONES DEL MODAL E INTERFAZ ---
+// --- FUNCIONES DEL MODAL E INTERFAZ (Ahora con Animación) ---
 function abrirCarrito() {
-    document.getElementById('modal-carrito').style.display = 'flex';
+    // En vez de display block, añadimos la clase que activa la transición CSS
+    document.getElementById('modal-carrito').classList.add('activo');
 }
 
 function cerrarCarrito() {
-    document.getElementById('modal-carrito').style.display = 'none';
+    // Quitamos la clase para que se deslice hacia afuera
+    document.getElementById('modal-carrito').classList.remove('activo');
+}
+
+// NUEVO: Función para vaciar el carrito completo con confirmación
+function vaciarCarrito() {
+    if (carrito.length === 0) return; // Si ya está vacío, no hacemos nada
+
+    Swal.fire({
+        title: '¿Vaciar pedido?',
+        text: "Se eliminarán todos los productos de tu carrito.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, vaciar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            carrito = [];
+            // Desmarcamos los checkboxes de extras por si habían seleccionado alguno
+            document.querySelectorAll('.chk-extra').forEach(chk => chk.checked = false);
+            actualizarPantalla();
+            cerrarCarrito();
+            
+            Swal.fire({
+                toast: true, position: 'top-end', icon: 'success', title: 'Carrito vacío',
+                showConfirmButton: false, timer: 1500
+            });
+        }
+    });
 }
 
 function toggleDireccion() {
@@ -97,7 +90,6 @@ function toggleDireccion() {
     
     if (metodo === 'retiro') {
         inputDireccion.style.display = 'none';
-        
         if (selectComuna) {
             selectComuna.style.display = 'none';
             selectComuna.value = "0"; 
@@ -106,30 +98,22 @@ function toggleDireccion() {
         inputDireccion.style.display = 'block';
         if (selectComuna) selectComuna.style.display = 'block';
     }
-    
     actualizarPantalla();
 }
 
 // --- LÓGICA DEL CARRITO DE COMPRAS ---
 function agregarAlCarrito(nombreProducto, precioProducto) {
     const indice = carrito.findIndex(producto => producto.nombre === nombreProducto);
-
     if (indice !== -1) {
         carrito[indice].cantidad += 1;
     } else {
         carrito.push({ nombre: nombreProducto, precio: precioProducto, cantidad: 1 });
     }
-
     actualizarPantalla();
     
     Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: '¡Agregado al carrito!',
-        showConfirmButton: false,
-        timer: 1000, 
-        timerProgressBar: true
+        toast: true, position: 'top-end', icon: 'success', title: '¡Agregado al carrito!',
+        showConfirmButton: false, timer: 1000, timerProgressBar: true
     });
 }
 
@@ -137,6 +121,7 @@ function actualizarPantalla() {
     const listaHTML = document.getElementById('lista-carrito');
     const totalHTML = document.getElementById('total-precio');
     const contadorHTML = document.getElementById('contador-carrito');
+    const contadorFlotanteHTML = document.getElementById('contador-flotante'); // El contador del celular
 
     listaHTML.innerHTML = '';
     totalAcumulado = 0; 
@@ -157,11 +142,9 @@ function actualizarPantalla() {
         listaHTML.appendChild(itemLi);
     });
 
-    // Sumar el costo de envío
     const selectComuna = document.getElementById('cliente-comuna');
     const costoEnvio = selectComuna ? (parseInt(selectComuna.value) || 0) : 0; 
     
-    // Sumar los extras marcados en los checkboxes
     let costoExtras = 0;
     const checkboxes = document.querySelectorAll('.chk-extra');
     checkboxes.forEach(chk => {
@@ -170,7 +153,6 @@ function actualizarPantalla() {
 
     const totalFinal = totalAcumulado + costoEnvio + costoExtras;
 
-    // Mostrar el desglose en el carrito
     let desgloseTexto = `${totalAcumulado}`;
     if (costoExtras > 0) desgloseTexto += ` <br><span style="font-size: 0.9rem; color: #666;">+ $${costoExtras} (Extras)</span>`;
     if (costoEnvio > 0) desgloseTexto += ` <br><span style="font-size: 0.9rem; color: #666;">+ $${costoEnvio} (Despacho)</span>`;
@@ -181,7 +163,10 @@ function actualizarPantalla() {
         totalHTML.innerText = totalAcumulado;
     }
     
+    // Actualizamos ambos contadores (el de PC arriba y el de Celular flotando)
     contadorHTML.innerText = totalProductos;
+    if(contadorFlotanteHTML) contadorFlotanteHTML.innerText = totalProductos;
+    
     localStorage.setItem('carrito-temaki', JSON.stringify(carrito));
 }
 
@@ -197,12 +182,7 @@ function eliminarDelCarrito(index) {
 // --- CONEXIÓN CON WHATSAPP ---
 function enviarAWhatsApp() {
     if (carrito.length === 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: '¡Tu carrito está vacío!',
-            text: 'Agrega algunos deliciosos sushis primero.',
-            confirmButtonColor: '#32cd32'
-        });
+        Swal.fire({ icon: 'warning', title: '¡Tu carrito está vacío!', text: 'Agrega algunos deliciosos sushis primero.', confirmButtonColor: '#32cd32' });
         return;
     }
 
@@ -210,67 +190,31 @@ function enviarAWhatsApp() {
     const metodo = document.getElementById('cliente-metodo').value;
     const direccion = document.getElementById('cliente-direccion').value;
     const instrucciones = document.getElementById('cliente-instrucciones').value;
-    
     const comuna = document.getElementById('cliente-comuna');
     const costoEnvio = comuna ? (parseInt(comuna.value) || 0) : 0;
 
-    if (nombre.trim() === '') {
-        Swal.fire({
-            icon: 'error',
-            title: 'Faltan datos',
-            text: 'Por favor, ingresa tu nombre para el pedido.',
-            confirmButtonColor: '#32cd32'
-        });
-        return;
-    }
-    
-    if (metodo === 'delivery' && costoEnvio === 0) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Faltan datos',
-            text: 'Por favor, selecciona tu comuna para calcular el despacho.',
-            confirmButtonColor: '#32cd32'
-        });
-        return;
-    }
-
-    if (metodo === 'delivery' && direccion.trim() === '') {
-        Swal.fire({
-            icon: 'error',
-            title: 'Faltan datos',
-            text: 'Por favor, ingresa tu dirección exacta para el delivery.',
-            confirmButtonColor: '#32cd32'
-        });
-        return;
-    }
+    if (nombre.trim() === '') return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Por favor, ingresa tu nombre.', confirmButtonColor: '#32cd32' });
+    if (metodo === 'delivery' && costoEnvio === 0) return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Selecciona tu comuna para calcular el despacho.', confirmButtonColor: '#32cd32' });
+    if (metodo === 'delivery' && direccion.trim() === '') return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Ingresa tu dirección exacta.', confirmButtonColor: '#32cd32' });
 
     const telefono = "56931717552"; 
-
-    let mensaje = `🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n`;
-    mensaje += `👤 *Cliente:* ${nombre}\n`;
+    let mensaje = `🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n👤 *Cliente:* ${nombre}\n`;
     
     if (metodo === 'delivery') {
         const nombreComuna = comuna.options[comuna.selectedIndex].text; 
-        mensaje += `🛵 *Método:* Delivery\n`;
-        mensaje += `📍 *Comuna:* ${nombreComuna}\n`;
-        mensaje += `📍 *Dirección:* ${direccion}\n\n`;
+        mensaje += `🛵 *Método:* Delivery\n📍 *Comuna:* ${nombreComuna}\n📍 *Dirección:* ${direccion}\n\n`;
     } else {
         mensaje += `🏪 *Método:* Retiro en Tienda\n\n`;
     }
 
     mensaje += `📝 *Mi Pedido:*\n`;
-
-    carrito.forEach(function(producto) {
-        const subtotal = producto.precio * producto.cantidad;
-        mensaje += `- ${producto.cantidad}x ${producto.nombre} ($${subtotal})\n`;
+    carrito.forEach(producto => {
+        mensaje += `- ${producto.cantidad}x ${producto.nombre} ($${producto.precio * producto.cantidad})\n`;
     });
 
-    // Leer los extras marcados para el mensaje
-    const checkboxes = document.querySelectorAll('.chk-extra');
     let costoExtras = 0;
     let extrasSeleccionados = [];
-
-    checkboxes.forEach(chk => {
+    document.querySelectorAll('.chk-extra').forEach(chk => {
         if (chk.checked) {
             extrasSeleccionados.push(`${chk.dataset.nombre} (+$${chk.value})`);
             costoExtras += parseInt(chk.value);
@@ -279,14 +223,10 @@ function enviarAWhatsApp() {
 
     if (extrasSeleccionados.length > 0) {
         mensaje += `\n➕ *Extras agregados:*\n`;
-        extrasSeleccionados.forEach(extra => {
-            mensaje += `- ${extra}\n`;
-        });
+        extrasSeleccionados.forEach(extra => mensaje += `- ${extra}\n`);
     }
 
-    if (instrucciones.trim() !== '') {
-        mensaje += `\n💬 *Instrucciones Especiales:* ${instrucciones}\n`;
-    }
+    if (instrucciones.trim() !== '') mensaje += `\n💬 *Instrucciones Especiales:* ${instrucciones}\n`;
 
     const totalFinalReal = totalAcumulado + costoEnvio + costoExtras;
     mensaje += `\n💰 *Total a pagar: $${totalFinalReal}*`;
@@ -294,24 +234,21 @@ function enviarAWhatsApp() {
     const mensajeCodificado = encodeURIComponent(mensaje);
     const urlWhatsApp = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
     
-    window.open(urlWhatsApp, '_blank');
-
-    //Vaciar el carrito y actualizar la pantalla después de enviar el pedido
-    carrito = [];
-    actualizarPantalla();
-    cerrarCarrito();
+    // El truco invisible para móviles y limpieza
+    carrito = [];         
+    document.querySelectorAll('.chk-extra').forEach(chk => chk.checked = false); // Reseteamos extras
+    actualizarPantalla(); 
+    cerrarCarrito();      
 
     const enlaceFantasma = document.createElement('a');
     enlaceFantasma.href = urlWhatsApp;
-    enlaceFantasma.target = '_blank'; // Obliga a no tocar la pestaña actual de Temaki
-    
-    // Lo agregamos al documento, lo clickeamos y lo destruimos en milisegundos
+    enlaceFantasma.target = '_blank'; 
     document.body.appendChild(enlaceFantasma);
     enlaceFantasma.click(); 
     document.body.removeChild(enlaceFantasma);
 }
 
-// --- ARRANQUE DE LA APLICACIÓN ---
+// --- ARRANQUE ---
 window.onload = function() {
     cargarMenu();           
     actualizarPantalla();   
