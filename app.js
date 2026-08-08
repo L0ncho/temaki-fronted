@@ -6,12 +6,32 @@ const productosMenu = [
     { id: 4, nombre: "Bebida Lata 350cc", descripcion: "Coca-Cola, Sprite, Fanta.", precio: 1500, imagen: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80", categoria: "Bebidas" }
 ];
 
-// --- LÓGICA DE FILTROS Y MENÚ ---
+// --- LÓGICA DE FILTROS, MENÚ Y BÚSQUEDA ---
 function filtrarMenu(categoriaSeleccionada, botonClickeado) {
     const botones = document.querySelectorAll('.btn-filtro');
     botones.forEach(boton => boton.classList.remove('activo'));
     if (botonClickeado) botonClickeado.classList.add('activo');
+    
+    // Al filtrar por categoría, limpiamos el buscador de texto
+    document.getElementById('buscador-menu').value = '';
     cargarMenu(categoriaSeleccionada);
+}
+
+// NUEVO 1: Función de Búsqueda Inteligente
+function buscarProducto() {
+    const textoBuscado = document.getElementById('buscador-menu').value.toLowerCase();
+    const contenedorMenu = document.getElementById('contenedor-productos');
+    contenedorMenu.innerHTML = ''; 
+
+    // Quitamos la clase 'activo' de los botones porque estamos buscando globalmente
+    document.querySelectorAll('.btn-filtro').forEach(boton => boton.classList.remove('activo'));
+
+    const productosFiltrados = productosMenu.filter(producto => 
+        producto.nombre.toLowerCase().includes(textoBuscado) || 
+        producto.descripcion.toLowerCase().includes(textoBuscado)
+    );
+
+    dibujarTarjetas(productosFiltrados, contenedorMenu);
 }
 
 function cargarMenu(categoria = 'Todos') {
@@ -23,7 +43,17 @@ function cargarMenu(categoria = 'Todos') {
         return producto.categoria === categoria; 
     });
 
-    productosFiltrados.forEach(function(producto) {
+    dibujarTarjetas(productosFiltrados, contenedorMenu);
+}
+
+// Función auxiliar para no repetir código visual
+function dibujarTarjetas(arregloProductos, contenedor) {
+    if (arregloProductos.length === 0) {
+        contenedor.innerHTML = '<p style="text-align: center; width: 100%; color: #666;">No encontramos resultados para tu búsqueda. 🍣</p>';
+        return;
+    }
+    
+    arregloProductos.forEach(function(producto) {
         const tarjetaHTML = `
             <article class="card">
                 <img src="${producto.imagen}" alt="${producto.nombre}" class="card-img">
@@ -35,7 +65,7 @@ function cargarMenu(categoria = 'Todos') {
                 </div>
             </article>
         `;
-        contenedorMenu.innerHTML += tarjetaHTML;
+        contenedor.innerHTML += tarjetaHTML;
     });
 }
 
@@ -43,20 +73,17 @@ function cargarMenu(categoria = 'Todos') {
 let carrito = JSON.parse(localStorage.getItem('carrito-temaki')) || [];
 let totalAcumulado = 0;
 
-// --- FUNCIONES DEL MODAL E INTERFAZ (Ahora con Animación) ---
+// --- FUNCIONES DEL MODAL E INTERFAZ ---
 function abrirCarrito() {
-    // En vez de display block, añadimos la clase que activa la transición CSS
     document.getElementById('modal-carrito').classList.add('activo');
 }
 
 function cerrarCarrito() {
-    // Quitamos la clase para que se deslice hacia afuera
     document.getElementById('modal-carrito').classList.remove('activo');
 }
 
-// NUEVO: Función para vaciar el carrito completo con confirmación
 function vaciarCarrito() {
-    if (carrito.length === 0) return; // Si ya está vacío, no hacemos nada
+    if (carrito.length === 0) return; 
 
     Swal.fire({
         title: '¿Vaciar pedido?',
@@ -70,15 +97,11 @@ function vaciarCarrito() {
     }).then((result) => {
         if (result.isConfirmed) {
             carrito = [];
-            // Desmarcamos los checkboxes de extras por si habían seleccionado alguno
             document.querySelectorAll('.chk-extra').forEach(chk => chk.checked = false);
             actualizarPantalla();
             cerrarCarrito();
             
-            Swal.fire({
-                toast: true, position: 'top-end', icon: 'success', title: 'Carrito vacío',
-                showConfirmButton: false, timer: 1500
-            });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Carrito vacío', showConfirmButton: false, timer: 1500 });
         }
     });
 }
@@ -90,10 +113,7 @@ function toggleDireccion() {
     
     if (metodo === 'retiro') {
         inputDireccion.style.display = 'none';
-        if (selectComuna) {
-            selectComuna.style.display = 'none';
-            selectComuna.value = "0"; 
-        }
+        if (selectComuna) { selectComuna.style.display = 'none'; selectComuna.value = "0"; }
     } else {
         inputDireccion.style.display = 'block';
         if (selectComuna) selectComuna.style.display = 'block';
@@ -111,17 +131,14 @@ function agregarAlCarrito(nombreProducto, precioProducto) {
     }
     actualizarPantalla();
     
-    Swal.fire({
-        toast: true, position: 'top-end', icon: 'success', title: '¡Agregado al carrito!',
-        showConfirmButton: false, timer: 1000, timerProgressBar: true
-    });
+    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '¡Agregado al carrito!', showConfirmButton: false, timer: 1000, timerProgressBar: true });
 }
 
 function actualizarPantalla() {
     const listaHTML = document.getElementById('lista-carrito');
     const totalHTML = document.getElementById('total-precio');
     const contadorHTML = document.getElementById('contador-carrito');
-    const contadorFlotanteHTML = document.getElementById('contador-flotante'); // El contador del celular
+    const contadorFlotanteHTML = document.getElementById('contador-flotante');
 
     listaHTML.innerHTML = '';
     totalAcumulado = 0; 
@@ -146,10 +163,7 @@ function actualizarPantalla() {
     const costoEnvio = selectComuna ? (parseInt(selectComuna.value) || 0) : 0; 
     
     let costoExtras = 0;
-    const checkboxes = document.querySelectorAll('.chk-extra');
-    checkboxes.forEach(chk => {
-        if (chk.checked) costoExtras += parseInt(chk.value);
-    });
+    document.querySelectorAll('.chk-extra').forEach(chk => { if (chk.checked) costoExtras += parseInt(chk.value); });
 
     const totalFinal = totalAcumulado + costoEnvio + costoExtras;
 
@@ -163,28 +177,34 @@ function actualizarPantalla() {
         totalHTML.innerText = totalAcumulado;
     }
     
-    // Actualizamos ambos contadores (el de PC arriba y el de Celular flotando)
     contadorHTML.innerText = totalProductos;
     if(contadorFlotanteHTML) contadorFlotanteHTML.innerText = totalProductos;
-    
     localStorage.setItem('carrito-temaki', JSON.stringify(carrito));
 }
 
 function eliminarDelCarrito(index) {
-    if (carrito[index].cantidad > 1) {
-        carrito[index].cantidad -= 1;
-    } else {
-        carrito.splice(index, 1);
-    }
+    if (carrito[index].cantidad > 1) carrito[index].cantidad -= 1;
+    else carrito.splice(index, 1);
     actualizarPantalla();
 }
 
-// --- CONEXIÓN CON WHATSAPP ---
+// --- CONEXIÓN CON WHATSAPP Y VALIDACIONES FINALES ---
 function enviarAWhatsApp() {
-    if (carrito.length === 0) {
-        Swal.fire({ icon: 'warning', title: '¡Tu carrito está vacío!', text: 'Agrega algunos deliciosos sushis primero.', confirmButtonColor: '#32cd32' });
-        return;
+    // NUEVO 2: Validar el Horario de Atención (18:30 a 23:00 hrs)
+    const formatter = new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', hour: 'numeric', hour12: false });
+    const horaLocal = parseInt(formatter.format(new Date()), 10);
+    
+    if (horaLocal < 18 || horaLocal >= 23) {
+        Swal.fire({
+            icon: 'info',
+            title: '¡Local Cerrado! 🌙',
+            text: 'Nuestro horario de atención es de 18:30 a 23:00 hrs. ¡Te esperamos mañana!',
+            confirmButtonColor: '#32cd32'
+        });
+        return; // Detiene la función, no abre WhatsApp
     }
+
+    if (carrito.length === 0) return Swal.fire({ icon: 'warning', title: '¡Tu carrito está vacío!', text: 'Agrega algunos deliciosos sushis primero.', confirmButtonColor: '#32cd32' });
 
     const nombre = document.getElementById('cliente-nombre').value;
     const metodo = document.getElementById('cliente-metodo').value;
@@ -197,8 +217,13 @@ function enviarAWhatsApp() {
     if (metodo === 'delivery' && costoEnvio === 0) return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Selecciona tu comuna para calcular el despacho.', confirmButtonColor: '#32cd32' });
     if (metodo === 'delivery' && direccion.trim() === '') return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Ingresa tu dirección exacta.', confirmButtonColor: '#32cd32' });
 
+    // NUEVO 3: Generador de Número de Pedido Único
+    const idPedido = 'TMK-' + Math.floor(1000 + Math.random() * 9000); 
     const telefono = "56931717552"; 
-    let mensaje = `🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n👤 *Cliente:* ${nombre}\n`;
+    
+    let mensaje = `🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n`;
+    mensaje += `🧾 *Orden:* #${idPedido}\n`;
+    mensaje += `👤 *Cliente:* ${nombre}\n`;
     
     if (metodo === 'delivery') {
         const nombreComuna = comuna.options[comuna.selectedIndex].text; 
@@ -234,9 +259,8 @@ function enviarAWhatsApp() {
     const mensajeCodificado = encodeURIComponent(mensaje);
     const urlWhatsApp = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
     
-    // El truco invisible para móviles y limpieza
     carrito = [];         
-    document.querySelectorAll('.chk-extra').forEach(chk => chk.checked = false); // Reseteamos extras
+    document.querySelectorAll('.chk-extra').forEach(chk => chk.checked = false); 
     actualizarPantalla(); 
     cerrarCarrito();      
 
