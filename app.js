@@ -1,9 +1,34 @@
 // --- BASE DE DATOS DEL MENÚ ---
 const productosMenu = [
-    { id: 1, nombre: "Avocado Roll", descripcion: "Salmón, queso crema, envuelto en palta.", precio: 6500, imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=300&q=80", categoria: "Rolls" },
-    { id: 2, nombre: "Tempura Roll", descripcion: "Camarón, cebollín, queso crema, frito en panko.", precio: 7200, imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=300&q=80", categoria: "Rolls" },
-    { id: 3, nombre: "Sashimi Salmón", descripcion: "5 cortes de salmón fresco premium.", precio: 5500, imagen: "images.png", categoria: "Entradas" },
-    { id: 4, nombre: "Bebida Lata 350cc", descripcion: "Coca-Cola, Sprite, Fanta.", precio: 1500, imagen: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=300&q=80", categoria: "Bebidas" }
+    // TABLAS (30 Piezas)
+    { id: 1, nombre: "Tabla Hot Rolls (30 pz)", descripcion: "Pollo-queso-palta, Camarón-queso-cebollín, Pollo-queso-cebollín. Todas en envoltura tempura panko.", precio: 14500, imagen: "https://images.unsplash.com/photo-1617196034183-421b48364ed1?auto=format&fit=crop&w=400&q=80", categoria: "Tablas" },
+    { id: 2, nombre: "Tabla Ayelen (30 pz)", descripcion: "Env. Palta: Pollo-queso-cebollín. Env. Sésamo: Camarón-queso-palta. Env. Panko: Salmón-queso-cebollín.", precio: 15000, imagen: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400&q=80", categoria: "Tablas" },
+    { id: 3, nombre: "Tabla Igna (30 pz)", descripcion: "Env. Queso: Pollo-palta-cebollín. Env. Nori: Salmón-queso-palta. Env. Palta: Camarón-queso-cebollín. Env. Panko: Pollo-queso-palta.", precio: 16500, imagen: "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=400&q=80", categoria: "Tablas" },
+    { id: 4, nombre: "Tabla Tobal (30 pz)", descripcion: "Env. Palta: Camarón-queso-cebollín. Env. Ciboulette: Pollo-queso-palta. Env. Panko: Pollo-palta-queso y Camarón-queso-cebollín.", precio: 17500, imagen: "https://images.unsplash.com/photo-1563612116625-ca1394e7da0a?auto=format&fit=crop&w=400&q=80", categoria: "Tablas" },
+    { id: 5, nombre: "Tabla Arya (30 pz)", descripcion: "Env. Queso: Palmito. Env. Nori: Pollo. Env. Sésamo: Camarón. Env. Palta: Pollo. Env. Ciboulette: Pollo. Env. Panko: Salmón.", precio: 22000, imagen: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=400&q=80", categoria: "Tablas" },
+    { id: 6, nombre: "Tabla Xander (30 pz)", descripcion: "Env. Queso (x2): Pollo. Env. Palta: Camarón. Env. Nori: Salmón. Env. Panko (x2): Pollo y Camarón.", precio: 24000, imagen: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=400&q=80", categoria: "Tablas" },
+
+    // HANDROLLS
+    { id: 7, nombre: "Handroll Pollo", descripcion: "Pollo - Queso - Cebollín o Palta", precio: 4200, imagen: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?auto=format&fit=crop&w=400&q=80", categoria: "Handrolls" },
+    { id: 8, nombre: "Handroll Camarón", descripcion: "Camarón - Queso - Cebollín o Palta", precio: 4600, imagen: "https://images.unsplash.com/photo-1583623025817-eaeb128d51fb?auto=format&fit=crop&w=400&q=80", categoria: "Handrolls" },
+    { id: 9, nombre: "Handroll Salmón", descripcion: "Salmón - Queso - Cebollín o Palta", precio: 5000, imagen: "https://images.unsplash.com/photo-1615367347545-ce9e8ea4f850?auto=format&fit=crop&w=400&q=80", categoria: "Handrolls" },
+
+    // GOHAN (Bowl base de arroz, queso, palta, cebollín)
+    { id: 10, nombre: "Gohan Pollo", descripcion: "Bowl base con Pollo", precio: 6000, imagen: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80", categoria: "Gohan" },
+    { id: 11, nombre: "Gohan Camarón", descripcion: "Bowl base con Camarón", precio: 6500, imagen: "https://images.unsplash.com/photo-1604909052743-94e838986d24?auto=format&fit=crop&w=400&q=80", categoria: "Gohan" },
+    { id: 12, nombre: "Gohan Salmón", descripcion: "Bowl base con Salmón", precio: 7000, imagen: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80", categoria: "Gohan" },
+    { id: 13, nombre: "Gohan Mix Panko", descripcion: "Bowl base con Mix Panko", precio: 8000, imagen: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80", categoria: "Gohan" },
+    { id: 14, nombre: "Gohan Mix Salteado", descripcion: "Bowl base con Mix Salteado", precio: 7500, imagen: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?auto=format&fit=crop&w=400&q=80", categoria: "Gohan" },
+
+    // ENTRADAS Y PICOTEOS
+    { id: 15, nombre: "Camarón Furay", descripcion: "6 Unidades", precio: 5000, imagen: "https://images.unsplash.com/photo-1565680018434-b513d5ea5c7c?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" },
+    { id: 16, nombre: "Bastones de Pollo", descripcion: "6 Unidades", precio: 4500, imagen: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" },
+    { id: 17, nombre: "Papas Fritas", descripcion: "Porción Mediana", precio: 3500, imagen: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" },
+    { id: 18, nombre: "Ceviche de Salmón (M)", descripcion: "Porción Mediana", precio: 5000, imagen: "https://images.unsplash.com/photo-1535398089889-dd807df1dfaa?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" },
+    { id: 19, nombre: "Ceviche de Salmón (XL)", descripcion: "Porción Extra Grande", precio: 10000, imagen: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" },
+    { id: 20, nombre: "Nigiris Salmón", descripcion: "6 Unidades", precio: 5000, imagen: "https://images.unsplash.com/photo-1582450871972-ab5ca641643d?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" },
+    { id: 21, nombre: "Arrollados", descripcion: "Jamón Queso o Primavera (6 Unidades)", precio: 4500, imagen: "https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" },
+    { id: 22, nombre: "Gyosas", descripcion: "Cerdo, Camarón, Pollo o Verduras (6 Unidades)", precio: 6000, imagen: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" }
 ];
 
 // --- LÓGICA DE FILTROS, MENÚ Y BÚSQUEDA ---

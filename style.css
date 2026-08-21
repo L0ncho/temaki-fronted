@@ -17,7 +17,7 @@ body {
     color: #2c3e50;
     text-align: center;
     padding: 2rem 1rem;
-    border-bottom: 4px solid #167607; 
+    border-bottom: 4px solid #195207; 
 }
 
 .header h1 {
@@ -35,7 +35,7 @@ body {
 .category-title {
     margin-bottom: 1.5rem;
     color: #2c3e50;
-    border-bottom: 2px solid #d13030;
+    border-bottom: 2px solid #167607;
     padding-bottom: 0.5rem;
 }
 
@@ -382,5 +382,41 @@ textarea.form-input {
 @media (min-width: 768px) {
     .btn-flotante {
         display: none;
+    }
+}
+
+/* --- Footer Instagram --- */
+.site-footer {
+    background-color: #234326;
+    color: #ffffff;
+    text-align: center;
+    padding: 1.5rem 1rem 6rem;
+    margin-top: 2rem;
+}
+
+.footer-instagram {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.footer-instagram svg {
+    flex-shrink: 0;
+}
+
+.footer-instagram:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+@media (min-width: 768px) {
+    .site-footer {
+        padding-bottom: 1.5rem;
     }
 }

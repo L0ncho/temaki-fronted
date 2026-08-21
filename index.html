@@ -10,22 +10,23 @@
     
     <header class="header">
         <img src="logo.png" alt="Logo de Temaki Sushi" class="logo-img">
-        <p>El mejor sabor, directo a tu mesa</p>
+        <p>Roll, Gohan, Handroll & variedad</p>
         <p>Horario de atención: 18:30 a 23:00 hrs</p>
         <button class="btn-ver-carrito" onclick="abrirCarrito()"> Ver mi pedido (<span id="contador-carrito">0</span>)</button>
     </header>
 
     <main class="menu-container">
-        <h2 class="category-title">Rolls Destacados</h2>
+        <h2 class="category-title">Nuestro Menú</h2>
         <div style="text-align: center; padding: 0 20px 15px 20px;">
-            <input type="text" id="buscador-menu" class="form-input" placeholder="🔍 Buscar sushi, entrada, bebida..." onkeyup="buscarProducto()" style="max-width: 400px; margin: 0 auto; display: block;">
+            <input type="text" id="buscador-menu" class="form-input" placeholder="🔍 Buscar tabla, handroll, gohan..." onkeyup="buscarProducto()" style="max-width: 400px; margin: 0 auto; display: block;">
         </div>
         
         <div class="filtros-menu">
             <button class="btn-filtro activo" onclick="filtrarMenu('Todos', this)">Todos</button>
-            <button class="btn-filtro" onclick="filtrarMenu('Rolls', this)">🍣 Rolls</button>
-            <button class="btn-filtro" onclick="filtrarMenu('Entradas', this)">🥟 Entradas</button>
-            <button class="btn-filtro" onclick="filtrarMenu('Bebidas', this)">🥤 Bebidas</button>
+            <button class="btn-filtro" onclick="filtrarMenu('Tablas', this)">Tablas</button>
+            <button class="btn-filtro" onclick="filtrarMenu('Handrolls', this)">Handrolls</button>
+            <button class="btn-filtro" onclick="filtrarMenu('Gohan', this)">Gohan</button>
+            <button class="btn-filtro" onclick="filtrarMenu('Entradas', this)">Entradas</button>
         </div>
         
         <div id="contenedor-productos" class="product-grid">
@@ -75,7 +76,7 @@
                 </select>
 
                 <select id="cliente-comuna" class="form-input" onchange="actualizarPantalla()">
-                    <option value="0">Selecciona tu comuna...</option>
+                    <option value="0">Selecciona tu zona...</option>
                     <option value="2000">Puchuncaví (+$2.000)</option>
                     <option value="5000">Maitencillo (+$5.000)</option>
                     <option value="2500">Campiche (+$2.500)</option>
@@ -83,6 +84,17 @@
                     <option value="4000">Ventanas (+$4.000)</option>
                     <option value="4000">Chocota (+$4.000)</option>
                     <option value="5000">Horcón (+$5.000)</option>
+                    <option value="2500">El Paso (+$2.500)</option>
+                    <option value="3000">El Rungue (+$3.000)</option>
+                    <option value="5500">Laguna (+$5.500)</option>
+                    <option value="2500">El Rincón (+$2.500)</option>
+                    <option value="2500">San Antonio (+$2.500)</option>
+                    <option value="6000">Marbella Adentro (+$6.000)</option>
+                    <option value="4000">Pucalan (+$4.000)</option>
+                    <option value="4500">Maitenes (+$4.500)</option>
+                    <option value="3500">El Médano (+$3.500)</option>
+                    <option value="4500">Los Maquis (+$4.500)</option>
+                    <option value="5000">Altos el Rungue (+$5.000)</option>
                 </select>
 
                 <input type="text" id="cliente-direccion" placeholder="Dirección (Ej: Av. San Martín, Viña del Mar)" class="form-input">
@@ -99,6 +111,17 @@
             </div>
         </aside>
     </div>
+
+    <footer class="site-footer">
+        <a href="https://www.instagram.com/sushitemaki__/" target="_blank" rel="noopener noreferrer" class="footer-instagram" aria-label="Síguenos en Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <circle cx="12" cy="12" r="4"></circle>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle>
+            </svg>
+            <span>Síguenos en Instagram</span>
+        </a>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="app.js"></script>
