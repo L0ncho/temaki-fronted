@@ -13,16 +13,26 @@ body {
 
 /* --- Encabezado --- */
 .header {
-    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    background-color: #fafafa;
     color: #2c3e50;
     text-align: center;
-    padding: 2rem 1rem;
-    border-bottom: 4px solid #195207; 
+    padding: 1rem 1rem 1.15rem;
+    border-bottom: 4px solid #234326;
 }
 
-.header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+.header-subtitulo {
+    color: #234326;
+    font-weight: bold;
+    font-size: 1.05rem;
+}
+
+.header-horario {
+    font-size: 0.85rem;
+    color: #666;
 }
 
 /* --- Contenedor del Menú --- */
@@ -94,9 +104,8 @@ body {
     background-color: #1a252f;
 }
 .logo-img {
-    max-width: 150px; /* Controla el ancho máximo. Súbelo o bájalo a tu gusto */
-    height: auto;     /* Mantiene las proporciones para que no se deforme */
-    margin-bottom: 10px; /* Le da una pequeña separación con el texto de abajo */
+    max-width: 180px;
+    height: auto;
 }
 /* --- Estilos del Carrito --- */
 .cart-container {
@@ -180,7 +189,7 @@ body {
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 /* --- Fondo oscuro del Modal --- */

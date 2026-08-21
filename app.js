@@ -302,3 +302,10 @@ window.onload = function() {
     cargarMenu();           
     actualizarPantalla();   
 };
+
+window.addEventListener('click', function(event) {
+    const modalCarrito = document.getElementById('modal-carrito');
+    if (event.target === modalCarrito) {
+        cerrarCarrito();
+    }
+});
