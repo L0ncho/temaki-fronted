@@ -1,4 +1,3 @@
-/* --- Estilos Generales --- */
 * {
     margin: 0;
     padding: 0;
@@ -11,7 +10,6 @@ body {
     color: #333;
 }
 
-/* --- Encabezado --- */
 .header {
     display: flex;
     flex-direction: column;
@@ -35,7 +33,11 @@ body {
     color: #666;
 }
 
-/* --- Contenedor del Menú --- */
+.logo-img {
+    max-width: 180px;
+    height: auto;
+}
+
 .menu-container {
     max-width: 1000px;
     margin: 2rem auto;
@@ -49,15 +51,12 @@ body {
     padding-bottom: 0.5rem;
 }
 
-/* --- Cuadrícula Responsiva (El secreto para celulares) --- */
 .product-grid {
     display: grid;
-    /* Esto hace que las tarjetas se acomoden solas dependiendo del tamaño de pantalla */
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
 }
 
-/* --- Diseño de la Tarjeta --- */
 .card {
     background-color: white;
     border-radius: 10px;
@@ -103,11 +102,7 @@ body {
 .btn-add:hover {
     background-color: #1a252f;
 }
-.logo-img {
-    max-width: 180px;
-    height: auto;
-}
-/* --- Estilos del Carrito --- */
+
 .cart-container {
     max-width: 1000px;
     margin: 2rem auto;
@@ -115,7 +110,7 @@ body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    border-top: 4px solid #32cd32; /* Línea verde decorativa */
+    border-top: 4px solid #32cd32;
 }
 
 #lista-carrito {
@@ -143,7 +138,7 @@ body {
 }
 
 .btn-checkout {
-    background-color: #25D366; /* Color oficial de WhatsApp */
+    background-color: #25D366;
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -157,7 +152,7 @@ body {
 .btn-checkout:hover {
     background-color: #128C7E;
 }
-/* --- Formulario del Cliente --- */
+
 .customer-data {
     margin: 1.5rem 0;
     display: flex;
@@ -179,7 +174,7 @@ body {
     border-color: #32cd32;
     box-shadow: 0 0 5px rgba(50, 205, 50, 0.3);
 }
-/* --- Botón del Header --- */
+
 .btn-ver-carrito {
     background-color: #2c3e50;
     color: white;
@@ -192,7 +187,6 @@ body {
     margin-top: 0.5rem;
 }
 
-/* --- Fondo oscuro del Modal --- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -200,20 +194,19 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    display: none; /* Oculto hasta que se haga clic */
-    justify-content: flex-end; /* Alinea el panel a la derecha */
+    display: none;
+    justify-content: flex-end;
     z-index: 1000;
 }
 
-/* --- Sobrescribir el Cart Container para que sea lateral --- */
 .cart-container {
     width: 100%;
-    max-width: 400px; /* Ancho en computadores */
-    height: 100vh; /* Ocupa el 100% del alto de la pantalla */
+    max-width: 400px;
+    height: 100vh;
     margin: 0;
     border-radius: 0;
-    overflow-y: auto; /* Permite hacer scroll si la lista es muy larga */
-    animation: slideIn 0.3s ease-out; /* Animación de entrada */
+    overflow-y: auto;
+    animation: slideIn 0.3s ease-out;
 }
 
 .cart-header {
@@ -232,15 +225,14 @@ body {
 }
 
 textarea.form-input {
-    resize: none; /* Evita que el cliente deforme la caja de texto */
+    resize: none;
 }
 
-/* Animación para que el carrito deslice desde la derecha */
 @keyframes slideIn {
     from { transform: translateX(100%); }
     to { transform: translateX(0); }
 }
-/* --- Botón Eliminar del Carrito --- */
+
 .btn-eliminar {
     background: none;
     border: none;
@@ -250,15 +242,15 @@ textarea.form-input {
 }
 
 .btn-eliminar:hover {
-    transform: scale(1.2); /* Efecto de zoom al pasar el mouse */
+    transform: scale(1.2);
 }
-/* --- Filtros del Menú --- */
+
 .filtros-menu {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-bottom: 2rem;
-    flex-wrap: wrap; /* Permite que los botones bajen de línea en celulares pequeños */
+    flex-wrap: wrap;
 }
 
 .btn-filtro {
@@ -272,13 +264,12 @@ textarea.form-input {
     transition: all 0.3s;
 }
 
-/* Efecto al pasar el mouse o cuando está activo */
 .btn-filtro:hover, .btn-filtro.activo {
     background-color: #32cd32;
     border-color: #32cd32;
     color: white;
 }
-/* --- Extras del Carrito --- */
+
 .extras-carrito {
     background-color: #f9f9f9;
     border: 1px dashed #ccc;
@@ -308,7 +299,6 @@ textarea.form-input {
     gap: 8px;
 }
 
-/* 1. Animación del Panel Lateral (reemplaza el display:none) */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -318,7 +308,6 @@ textarea.form-input {
     background: rgba(0, 0, 0, 0.5);
     z-index: 1000;
     display: flex !important;
-    /* Usamos opacidad en lugar de display para poder animarlo */
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -340,21 +329,18 @@ textarea.form-input {
     overflow-y: auto;
     padding: 20px;
     box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-    /* Escondemos el panel desplazándolo a la derecha */
     transform: translateX(100%);
     transition: transform 0.3s ease-in-out;
 }
 
 .modal-overlay.activo .cart-container {
-    /* Al abrirse, vuelve a su posición original */
     transform: translateX(0);
 }
 
-/* 2. Botón de Vaciar Carrito */
 .btn-vaciar {
     background: none;
     border: none;
-    color: #dc3545; /* Rojo de alerta */
+    color: #dc3545;
     text-decoration: underline;
     margin-top: 15px;
     cursor: pointer;
@@ -363,7 +349,6 @@ textarea.form-input {
     text-align: center;
 }
 
-/* 3. Botón Flotante para Móviles */
 .btn-flotante {
     position: fixed;
     bottom: 20px;
@@ -387,14 +372,12 @@ textarea.form-input {
     transform: scale(0.95);
 }
 
-/* Ocultar el botón flotante en pantallas grandes (PC) */
 @media (min-width: 768px) {
     .btn-flotante {
         display: none;
     }
 }
 
-/* --- Footer Instagram --- */
 .site-footer {
     background-color: #234326;
     color: #ffffff;
