@@ -13,7 +13,9 @@ El cliente recorre el menú, arma su pedido en el carrito y lo envía por WhatsA
 - Pedir **delivery** (con zona y costo de despacho) o **retiro en tienda**
 - Enviar el pedido a WhatsApp con un número de orden (`TMK-XXXX`)
 
-Horario de pedidos: **18:30 a 23:00 hrs** (hora de Chile). Fuera de ese rango la app avisa que el local está cerrado y no abre WhatsApp.
+Horario de pedidos: **18:30 a 23:00 hrs** (hora de Chile), con la posibilidad de definir días con horario especial o cerrados (ver [Horarios](#horarios)). Fuera de horario la app avisa que el local está cerrado y no abre WhatsApp.
+
+El sitio tiene **modo claro y oscuro**: en automático sigue la luz del día en Puchuncaví, y el cliente puede fijarlo con el botón del encabezado.
 
 Instagram: [sushitemaki__](https://www.instagram.com/sushitemaki__/)
 
@@ -40,11 +42,39 @@ Temaki-Fronted/
 ├── index.html    Interfaz: menú, filtros, carrito y footer
 ├── style.css     Estilos y diseño responsive
 ├── app.js        Menú, carrito, validaciones y envío a WhatsApp
+├── horarios.js   Horario normal y horarios especiales (el único archivo a editar para horarios)
+├── tema.js       Modo claro / oscuro (se carga en el <head>)
 ├── logo.png      Logo del local
 └── README.md
 ```
 
-Dependencia externa: [SweetAlert2](https://sweetalert2.github.io/) (CDN) para avisos y confirmaciones.
+Dependencia externa: [SweetAlert2](https://sweetalert2.github.io/) v11.14.5 (CDN, con verificación SRI) para avisos y confirmaciones.
+
+## Horarios
+
+Se configuran en `horarios.js`:
+
+```js
+const HORARIO_NORMAL = { apertura: '18:30', cierre: '23:00' };
+
+const HORARIOS_ESPECIALES = {
+    '2026-12-24': { apertura: '13:00', cierre: '18:00' },   // abre en otro horario
+    '2026-12-25': { cerrado: true },                          // no atiende
+    '2026-12-31': { apertura: '18:30', cierre: '02:00' },   // cierra después de medianoche
+};
+```
+
+- Las fechas van en formato `AAAA-MM-DD` y las horas son de Chile.
+- El encabezado muestra el horario del día ("Hoy horario especial: 13:00 a 18:00 hrs" o "Hoy no estamos atendiendo").
+- Si una hora está mal escrita, se usa el horario normal y se avisa en la consola del navegador.
+
+## Modo claro / oscuro
+
+`tema.js` pone `data-theme="light"` o `"dark"` en `<html>`, y `style.css` redefine las variables de color bajo `:root[data-theme="dark"]`.
+
+- **Auto** (por defecto): claro entre el amanecer y la puesta de sol de Puchuncaví, calculados para cada día del año. Cambia solo sin recargar la página, así que también funciona en horarios especiales de día.
+- **Claro / Oscuro**: el botón del encabezado pasa por Auto → Claro → Oscuro, y la elección queda guardada en el navegador (`tema-temaki` en `localStorage`).
+- En modo oscuro el logo va sobre un círculo claro y los avisos de SweetAlert2 usan los colores oscuros.
 
 ## Carta
 
@@ -61,7 +91,7 @@ Las imágenes actuales son de Unsplash (placeholders). Para cambiar precios, tex
 
 ## Zonas de delivery
 
-El `<select id="cliente-comuna">` en `index.html` define zona y costo. El `value` de cada opción es el valor del despacho en pesos chilenos.
+El `<select id="cliente-comuna">` en `index.html` define zona y costo. El `value` de cada opción es el valor del despacho en pesos chilenos y `data-nombre` es el nombre que llega en el mensaje de WhatsApp. Las opciones están en orden alfabético.
 
 | Zona              | Despacho |
 |-------------------|----------|
@@ -88,7 +118,17 @@ El `<select id="cliente-comuna">` en `index.html` define zona y costo. El `value
 
 | Dato              | Dónde está                         |
 |-------------------|------------------------------------|
-| Teléfono WhatsApp | `telefono` en `enviarAWhatsApp()` (`app.js`) |
-| Horario           | Validación en `enviarAWhatsApp()` y texto del encabezado |
-| Carrito persistente | Clave `carrito-temaki` en `localStorage` |
+| Teléfono WhatsApp | `TELEFONO_WHATSAPP` al inicio de la configuración en `app.js` |
+| Horario           | `horarios.js` |
+| Dirección para retiro | `DIRECCION_LOCAL` en `app.js` (vacía = no se muestra) |
+| Carrito persistente | Clave `carrito-temaki` en `localStorage`. Guarda solo `{ id, cantidad }`; el precio siempre se lee de `productosMenu` |
+| Colores           | Variables CSS en `:root` (claro) y `:root[data-theme="dark"]` (oscuro) al inicio de `style.css` |
 | Instagram         | Footer de `index.html`             |
+
+## Notas sobre el pedido
+
+- Los precios se muestran con formato chileno (`$14.500`) mediante `formatoCLP()`.
+- El número de orden se arma con la fecha y hora de Chile: `TMK-DDMM-HHMMSS`.
+- Al pulsar **Enviar a WhatsApp** el carrito no se vacía de inmediato: la app pregunta si el mensaje se envió y solo entonces lo limpia. Si WhatsApp no se abrió, ofrece un enlace para reintentar.
+- Si el CDN de SweetAlert2 no carga, los avisos usan los diálogos nativos del navegador y el pedido igual se puede enviar.
+- Como no hay backend, el total lo calcula el navegador del cliente: conviene que el local lo revise al recibir el pedido.

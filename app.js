@@ -23,9 +23,126 @@ const productosMenu = [
     { id: 22, nombre: "Gyosas", descripcion: "Cerdo, Camarón, Pollo o Verduras (6 Unidades)", precio: 6000, imagen: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80", categoria: "Entradas" }
 ];
 
+// ---------- Configuración del local ----------
+const TELEFONO_WHATSAPP = "56931717552";
+const ZONA_HORARIA = 'America/Santiago';
+// Los horarios de atención están en horarios.js
+// Dirección que se muestra al elegir "Retiro en tienda". Si queda vacía, no se muestra nada.
+const DIRECCION_LOCAL = "";
+const CLAVE_CARRITO = 'carrito-temaki';
+const COLOR_CONFIRMAR = '#32cd32';
+
+// ---------- Utilidades ----------
+function formatoCLP(monto) {
+    return '$' + monto.toLocaleString('es-CL');
+}
+
+function obtenerProducto(id) {
+    return productosMenu.find(producto => producto.id === id);
+}
+
+function horaChile() {
+    const partes = new Intl.DateTimeFormat('es-CL', {
+        timeZone: ZONA_HORARIA,
+        year: 'numeric', day: '2-digit', month: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hourCycle: 'h23'
+    }).formatToParts(new Date());
+    // padStart: algunos navegadores devuelven "7" en vez de "07" aunque se pida '2-digit'.
+    const valor = tipo => partes.find(parte => parte.type === tipo).value.padStart(2, '0');
+    return { anio: valor('year'), dia: valor('day'), mes: valor('month'), hora: valor('hour'), minuto: valor('minute'), segundo: valor('second') };
+}
+
+// ---------- Horarios (configurados en horarios.js) ----------
+function aMinutos(texto) {
+    const coincidencia = /^(\d{1,2}):(\d{2})$/.exec(String(texto || '').trim());
+    if (!coincidencia) return null;
+    const horas = parseInt(coincidencia[1], 10);
+    const minutos = parseInt(coincidencia[2], 10);
+    if (horas > 24 || minutos > 59 || (horas === 24 && minutos > 0)) return null;
+    return horas * 60 + minutos;
+}
+
+// Fecha 'AAAA-MM-DD' en Chile, desplazada en días (0 = hoy, -1 = ayer).
+function fechaChile(desplazamientoDias = 0) {
+    const t = horaChile();
+    const fecha = new Date(Date.UTC(parseInt(t.anio, 10), parseInt(t.mes, 10) - 1, parseInt(t.dia, 10) + desplazamientoDias));
+    return fecha.toISOString().slice(0, 10);
+}
+
+// Devuelve el horario de una fecha, o null si ese día no se atiende.
+function horarioDelDia(fecha) {
+    const especial = HORARIOS_ESPECIALES[fecha];
+    const config = especial || HORARIO_NORMAL;
+    if (config.cerrado) return null;
+
+    const apertura = aMinutos(config.apertura);
+    const cierre = aMinutos(config.cierre);
+    if (apertura === null || cierre === null) {
+        console.warn(`Horario mal escrito para ${fecha} en horarios.js; se usa el horario normal.`, config);
+        return especial ? horarioDelDia('normal') : null;
+    }
+
+    return {
+        apertura,
+        cierre,
+        cruzaMedianoche: cierre <= apertura,
+        especial: Boolean(especial),
+        texto: `${config.apertura} a ${config.cierre} hrs`
+    };
+}
+
+function estaAbierto() {
+    const t = horaChile();
+    const minutosActuales = parseInt(t.hora, 10) * 60 + parseInt(t.minuto, 10);
+
+    const hoy = horarioDelDia(fechaChile(0));
+    if (hoy) {
+        const antesDelCierre = hoy.cruzaMedianoche || minutosActuales < hoy.cierre;
+        if (minutosActuales >= hoy.apertura && antesDelCierre) return true;
+    }
+
+    // Madrugada: sigue abierto si el horario de ayer cruzaba la medianoche.
+    const ayer = horarioDelDia(fechaChile(-1));
+    return Boolean(ayer && ayer.cruzaMedianoche && minutosActuales < ayer.cierre);
+}
+
+function textoHorarioHoy() {
+    const hoy = horarioDelDia(fechaChile(0));
+    if (!hoy) return 'Hoy no estamos atendiendo';
+    return hoy.especial ? `Hoy horario especial: ${hoy.texto}` : `Horario de atención: ${hoy.texto}`;
+}
+
+function mostrarHorarioHoy() {
+    document.getElementById('horario-hoy').textContent = `🕒 ${textoHorarioHoy()}`;
+}
+
+function generarIdPedido() {
+    const t = horaChile();
+    return `TMK-${t.dia}${t.mes}-${t.hora}${t.minuto}${t.segundo}`;
+}
+
+// Avisos con SweetAlert2; si el CDN no cargó, se usan los diálogos nativos del navegador.
+function mostrarAviso(opciones) {
+    if (window.Swal) return Swal.fire({ confirmButtonColor: COLOR_CONFIRMAR, ...opciones });
+    if (!opciones.toast) alert([opciones.title, opciones.text].filter(Boolean).join('\n\n'));
+    return Promise.resolve();
+}
+
+function confirmar(opciones) {
+    if (window.Swal) {
+        return Swal.fire({ showCancelButton: true, ...opciones }).then(resultado => resultado.isConfirmed);
+    }
+    return Promise.resolve(window.confirm([opciones.title, opciones.text].filter(Boolean).join('\n\n')));
+}
+
+function avisoRapido(titulo) {
+    mostrarAviso({ toast: true, position: 'top-end', icon: 'success', title: titulo, showConfirmButton: false, timer: 1200, timerProgressBar: true });
+}
+
+// ---------- Menú ----------
 function filtrarMenu(categoriaSeleccionada, botonClickeado) {
-    const botones = document.querySelectorAll('.btn-filtro');
-    botones.forEach(boton => boton.classList.remove('activo'));
+    document.querySelectorAll('.btn-filtro').forEach(boton => boton.classList.remove('activo'));
     if (botonClickeado) botonClickeado.classList.add('activo');
 
     document.getElementById('buscador-menu').value = '';
@@ -33,10 +150,7 @@ function filtrarMenu(categoriaSeleccionada, botonClickeado) {
 }
 
 function buscarProducto() {
-    const textoBuscado = document.getElementById('buscador-menu').value.toLowerCase();
-    const contenedorMenu = document.getElementById('contenedor-productos');
-    contenedorMenu.innerHTML = '';
-
+    const textoBuscado = document.getElementById('buscador-menu').value.trim().toLowerCase();
     document.querySelectorAll('.btn-filtro').forEach(boton => boton.classList.remove('activo'));
 
     const productosFiltrados = productosMenu.filter(producto =>
@@ -44,248 +158,312 @@ function buscarProducto() {
         producto.descripcion.toLowerCase().includes(textoBuscado)
     );
 
-    dibujarTarjetas(productosFiltrados, contenedorMenu);
+    dibujarTarjetas(productosFiltrados);
 }
 
 function cargarMenu(categoria = 'Todos') {
-    const contenedorMenu = document.getElementById('contenedor-productos');
-    contenedorMenu.innerHTML = '';
-
-    const productosFiltrados = productosMenu.filter(function(producto) {
-        if (categoria === 'Todos') return true;
-        return producto.categoria === categoria;
-    });
-
-    dibujarTarjetas(productosFiltrados, contenedorMenu);
+    const productosFiltrados = productosMenu.filter(producto =>
+        categoria === 'Todos' || producto.categoria === categoria
+    );
+    dibujarTarjetas(productosFiltrados);
 }
 
-function dibujarTarjetas(arregloProductos, contenedor) {
+function dibujarTarjetas(arregloProductos) {
+    const contenedor = document.getElementById('contenedor-productos');
+
     if (arregloProductos.length === 0) {
-        contenedor.innerHTML = '<p style="text-align: center; width: 100%; color: #666;">No encontramos resultados para tu búsqueda. 🍣</p>';
+        contenedor.innerHTML = '<p class="sin-resultados">No encontramos resultados para tu búsqueda. 🍣</p>';
         return;
     }
 
-    arregloProductos.forEach(function(producto) {
-        const tarjetaHTML = `
-            <article class="card">
-                <img src="${producto.imagen}" alt="${producto.nombre}" class="card-img">
-                <div class="card-content">
-                    <h3>${producto.nombre}</h3>
-                    <p>${producto.descripcion}</p>
-                    <span class="price">$${producto.precio}</span>
-                    <button class="btn-add" onclick="agregarAlCarrito('${producto.nombre}', ${producto.precio})">Agregar al carrito</button>
-                </div>
-            </article>
-        `;
-        contenedor.innerHTML += tarjetaHTML;
-    });
+    contenedor.innerHTML = arregloProductos.map(producto => `
+        <article class="card">
+            <img src="${producto.imagen}" alt="${producto.nombre}" class="card-img" width="400" height="200" loading="lazy" decoding="async">
+            <div class="card-content">
+                <h3>${producto.nombre}</h3>
+                <p>${producto.descripcion}</p>
+                <span class="price">${formatoCLP(producto.precio)}</span>
+                <button class="btn-add" onclick="agregarAlCarrito(${producto.id})">Agregar al carrito</button>
+            </div>
+        </article>
+    `).join('');
 }
 
-let carrito = JSON.parse(localStorage.getItem('carrito-temaki')) || [];
-let totalAcumulado = 0;
+// ---------- Carrito ----------
+// Se guarda solo { id, cantidad }: el precio siempre se toma de productosMenu,
+// así un cambio de precio en la carta (o una edición de localStorage) no altera el total.
+function cargarCarritoGuardado() {
+    try {
+        const datos = JSON.parse(localStorage.getItem(CLAVE_CARRITO));
+        if (!Array.isArray(datos)) return [];
+
+        return datos.map(item => {
+            // Compatibilidad con el formato antiguo, que guardaba el nombre y el precio.
+            const producto = item.id !== undefined
+                ? obtenerProducto(item.id)
+                : productosMenu.find(p => p.nombre === item.nombre);
+            const cantidad = parseInt(item.cantidad, 10) || 1;
+            return producto ? { id: producto.id, cantidad: Math.min(cantidad, 99) } : null;
+        }).filter(Boolean);
+    } catch (error) {
+        return [];
+    }
+}
+
+function guardarCarrito() {
+    try {
+        localStorage.setItem(CLAVE_CARRITO, JSON.stringify(carrito));
+    } catch (error) {
+        // Sin almacenamiento (modo privado, cuota llena): el carrito sigue funcionando en memoria.
+    }
+}
+
+let carrito = cargarCarritoGuardado();
+let elementoAntesDelCarrito = null;
 
 function abrirCarrito() {
+    elementoAntesDelCarrito = document.activeElement;
     document.getElementById('modal-carrito').classList.add('activo');
+    document.querySelector('.btn-cerrar').focus();
 }
 
 function cerrarCarrito() {
-    document.getElementById('modal-carrito').classList.remove('activo');
+    const modal = document.getElementById('modal-carrito');
+    if (!modal.classList.contains('activo')) return;
+    modal.classList.remove('activo');
+    if (elementoAntesDelCarrito) elementoAntesDelCarrito.focus();
+}
+
+function limpiarPedido() {
+    carrito = [];
+    document.querySelectorAll('.chk-extra').forEach(chk => chk.checked = false);
+    actualizarPantalla();
 }
 
 function vaciarCarrito() {
     if (carrito.length === 0) return;
 
-    Swal.fire({
+    confirmar({
         title: '¿Vaciar pedido?',
-        text: "Se eliminarán todos los productos de tu carrito.",
+        text: 'Se eliminarán todos los productos de tu carrito.',
         icon: 'warning',
-        showCancelButton: true,
         confirmButtonColor: '#dc3545',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Sí, vaciar',
         cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            carrito = [];
-            document.querySelectorAll('.chk-extra').forEach(chk => chk.checked = false);
-            actualizarPantalla();
-            cerrarCarrito();
-
-            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Carrito vacío', showConfirmButton: false, timer: 1500 });
-        }
+    }).then(confirmado => {
+        if (!confirmado) return;
+        limpiarPedido();
+        cerrarCarrito();
+        avisoRapido('Carrito vacío');
     });
 }
 
 function toggleDireccion() {
-    const metodo = document.getElementById('cliente-metodo').value;
-    const inputDireccion = document.getElementById('cliente-direccion');
-    const selectComuna = document.getElementById('cliente-comuna');
+    const esRetiro = document.getElementById('cliente-metodo').value === 'retiro';
+    const selectZona = document.getElementById('cliente-comuna');
+    const infoRetiro = document.getElementById('info-retiro');
 
-    if (metodo === 'retiro') {
-        inputDireccion.style.display = 'none';
-        if (selectComuna) { selectComuna.style.display = 'none'; selectComuna.value = "0"; }
-    } else {
-        inputDireccion.style.display = 'block';
-        if (selectComuna) selectComuna.style.display = 'block';
-    }
+    document.getElementById('campos-delivery').hidden = esRetiro;
+    if (esRetiro) selectZona.value = '';
+
+    infoRetiro.hidden = !(esRetiro && DIRECCION_LOCAL);
+    if (DIRECCION_LOCAL) infoRetiro.textContent = `📍 Retira tu pedido en: ${DIRECCION_LOCAL}`;
+
     actualizarPantalla();
 }
 
-function agregarAlCarrito(nombreProducto, precioProducto) {
-    const indice = carrito.findIndex(producto => producto.nombre === nombreProducto);
-    if (indice !== -1) {
-        carrito[indice].cantidad += 1;
-    } else {
-        carrito.push({ nombre: nombreProducto, precio: precioProducto, cantidad: 1 });
-    }
+function agregarAlCarrito(idProducto) {
+    if (!obtenerProducto(idProducto)) return;
+
+    const item = carrito.find(producto => producto.id === idProducto);
+    if (item) item.cantidad += 1;
+    else carrito.push({ id: idProducto, cantidad: 1 });
+
     actualizarPantalla();
-
-    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '¡Agregado al carrito!', showConfirmButton: false, timer: 1000, timerProgressBar: true });
-}
-
-function actualizarPantalla() {
-    const listaHTML = document.getElementById('lista-carrito');
-    const totalHTML = document.getElementById('total-precio');
-    const contadorHTML = document.getElementById('contador-carrito');
-    const contadorFlotanteHTML = document.getElementById('contador-flotante');
-
-    listaHTML.innerHTML = '';
-    totalAcumulado = 0;
-    let totalProductos = 0;
-
-    carrito.forEach(function(producto, index) {
-        if (!producto.cantidad) producto.cantidad = 1;
-
-        const subtotal = producto.precio * producto.cantidad;
-        totalAcumulado += subtotal;
-        totalProductos += producto.cantidad;
-
-        const itemLi = document.createElement('li');
-        itemLi.innerHTML = `
-            <span><b>${producto.cantidad}x</b> ${producto.nombre} - $${subtotal}</span>
-            <button class="btn-eliminar" onclick="eliminarDelCarrito(${index})">🗑️</button>
-        `;
-        listaHTML.appendChild(itemLi);
-    });
-
-    const selectComuna = document.getElementById('cliente-comuna');
-    const costoEnvio = selectComuna ? (parseInt(selectComuna.value) || 0) : 0;
-
-    let costoExtras = 0;
-    document.querySelectorAll('.chk-extra').forEach(chk => { if (chk.checked) costoExtras += parseInt(chk.value); });
-
-    const totalFinal = totalAcumulado + costoEnvio + costoExtras;
-
-    let desgloseTexto = `${totalAcumulado}`;
-    if (costoExtras > 0) desgloseTexto += ` <br><span style="font-size: 0.9rem; color: #666;">+ $${costoExtras} (Extras)</span>`;
-    if (costoEnvio > 0) desgloseTexto += ` <br><span style="font-size: 0.9rem; color: #666;">+ $${costoEnvio} (Despacho)</span>`;
-
-    if (costoEnvio > 0 || costoExtras > 0) {
-        totalHTML.innerHTML = `${desgloseTexto} <br> <strong style="font-size: 1.1rem;">Total: $${totalFinal}</strong>`;
-    } else {
-        totalHTML.innerText = totalAcumulado;
-    }
-
-    contadorHTML.innerText = totalProductos;
-    if (contadorFlotanteHTML) contadorFlotanteHTML.innerText = totalProductos;
-    localStorage.setItem('carrito-temaki', JSON.stringify(carrito));
+    avisoRapido('¡Agregado al carrito!');
 }
 
 function eliminarDelCarrito(index) {
+    if (!carrito[index]) return;
     if (carrito[index].cantidad > 1) carrito[index].cantidad -= 1;
     else carrito.splice(index, 1);
     actualizarPantalla();
 }
 
-function enviarAWhatsApp() {
-    const formatter = new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', hour: 'numeric', hour12: false });
-    const horaLocal = parseInt(formatter.format(new Date()), 10);
+function calcularTotales() {
+    const lineas = carrito.map(item => {
+        const producto = obtenerProducto(item.id);
+        return { nombre: producto.nombre, cantidad: item.cantidad, subtotal: producto.precio * item.cantidad };
+    });
 
-    if (horaLocal < 18 || horaLocal >= 23) {
-        Swal.fire({
+    const extras = Array.from(document.querySelectorAll('.chk-extra:checked')).map(chk => ({
+        nombre: chk.dataset.nombre,
+        precio: parseInt(chk.value, 10) || 0
+    }));
+
+    const esDelivery = document.getElementById('cliente-metodo').value === 'delivery';
+    const opcionZona = document.getElementById('cliente-comuna').selectedOptions[0];
+    const costoEnvio = esDelivery && opcionZona ? (parseInt(opcionZona.value, 10) || 0) : 0;
+
+    const subtotal = lineas.reduce((suma, linea) => suma + linea.subtotal, 0);
+    const costoExtras = extras.reduce((suma, extra) => suma + extra.precio, 0);
+
+    return {
+        lineas,
+        extras,
+        subtotal,
+        costoExtras,
+        costoEnvio,
+        nombreZona: opcionZona ? opcionZona.dataset.nombre : '',
+        cantidadProductos: lineas.reduce((suma, linea) => suma + linea.cantidad, 0),
+        total: subtotal + costoExtras + costoEnvio
+    };
+}
+
+function actualizarPantalla() {
+    const totales = calcularTotales();
+
+    document.getElementById('lista-carrito').innerHTML = totales.lineas.map((linea, index) => `
+        <li>
+            <span><b>${linea.cantidad}x</b> ${linea.nombre} - ${formatoCLP(linea.subtotal)}</span>
+            <button class="btn-eliminar" onclick="eliminarDelCarrito(${index})" aria-label="Quitar una unidad de ${linea.nombre}">🗑️</button>
+        </li>
+    `).join('');
+
+    let desglose = '';
+    if (totales.costoExtras > 0 || totales.costoEnvio > 0) {
+        desglose += `<span class="desglose">Productos: ${formatoCLP(totales.subtotal)}</span>`;
+        if (totales.costoExtras > 0) desglose += `<span class="desglose">+ ${formatoCLP(totales.costoExtras)} (Extras)</span>`;
+        if (totales.costoEnvio > 0) desglose += `<span class="desglose">+ ${formatoCLP(totales.costoEnvio)} (Despacho)</span>`;
+    }
+    document.getElementById('total-precio').innerHTML = `${desglose}<strong>Total: ${formatoCLP(totales.total)}</strong>`;
+
+    document.getElementById('contador-carrito').textContent = totales.cantidadProductos;
+    document.getElementById('contador-flotante').textContent = totales.cantidadProductos;
+    guardarCarrito();
+}
+
+// ---------- Envío a WhatsApp ----------
+function faltanDatos(texto) {
+    mostrarAviso({ icon: 'error', title: 'Faltan datos', text: texto });
+}
+
+function enviarAWhatsApp() {
+    if (!estaAbierto()) {
+        mostrarAviso({
             icon: 'info',
             title: '¡Local Cerrado! 🌙',
-            text: 'Nuestro horario de atención es de 18:30 a 23:00 hrs. ¡Te esperamos mañana!',
-            confirmButtonColor: '#32cd32'
+            text: `${textoHorarioHoy()}. ¡Te esperamos!`
         });
+        mostrarHorarioHoy();
         return;
     }
 
-    if (carrito.length === 0) return Swal.fire({ icon: 'warning', title: '¡Tu carrito está vacío!', text: 'Agrega algunos deliciosos sushis primero.', confirmButtonColor: '#32cd32' });
+    if (carrito.length === 0) {
+        mostrarAviso({ icon: 'warning', title: '¡Tu carrito está vacío!', text: 'Agrega algunos deliciosos sushis primero.' });
+        return;
+    }
 
-    const nombre = document.getElementById('cliente-nombre').value;
+    const nombre = document.getElementById('cliente-nombre').value.trim();
     const metodo = document.getElementById('cliente-metodo').value;
-    const direccion = document.getElementById('cliente-direccion').value;
-    const instrucciones = document.getElementById('cliente-instrucciones').value;
-    const comuna = document.getElementById('cliente-comuna');
-    const costoEnvio = comuna ? (parseInt(comuna.value) || 0) : 0;
+    const direccion = document.getElementById('cliente-direccion').value.trim();
+    const instrucciones = document.getElementById('cliente-instrucciones').value.trim();
+    const totales = calcularTotales();
 
-    if (nombre.trim() === '') return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Por favor, ingresa tu nombre.', confirmButtonColor: '#32cd32' });
-    if (metodo === 'delivery' && costoEnvio === 0) return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Selecciona tu comuna para calcular el despacho.', confirmButtonColor: '#32cd32' });
-    if (metodo === 'delivery' && direccion.trim() === '') return Swal.fire({ icon: 'error', title: 'Faltan datos', text: 'Ingresa tu dirección exacta.', confirmButtonColor: '#32cd32' });
-
-    const idPedido = 'TMK-' + Math.floor(1000 + Math.random() * 9000);
-    const telefono = "56931717552";
+    if (nombre === '') return faltanDatos('Por favor, ingresa tu nombre.');
+    if (metodo === 'delivery' && totales.costoEnvio === 0) return faltanDatos('Selecciona tu zona para calcular el despacho.');
+    if (metodo === 'delivery' && direccion === '') return faltanDatos('Ingresa tu dirección exacta.');
 
     let mensaje = `🍣 *¡Hola Temaki Sushi! Quiero hacer un pedido:*\n\n`;
-    mensaje += `🧾 *Orden:* #${idPedido}\n`;
+    mensaje += `🧾 *Orden:* #${generarIdPedido()}\n`;
     mensaje += `👤 *Cliente:* ${nombre}\n`;
 
     if (metodo === 'delivery') {
-        const nombreComuna = comuna.options[comuna.selectedIndex].text;
-        mensaje += `🛵 *Método:* Delivery\n📍 *Comuna:* ${nombreComuna}\n📍 *Dirección:* ${direccion}\n\n`;
+        mensaje += `🛵 *Método:* Delivery\n📍 *Zona:* ${totales.nombreZona}\n📍 *Dirección:* ${direccion}\n\n`;
     } else {
         mensaje += `🏪 *Método:* Retiro en Tienda\n\n`;
     }
 
     mensaje += `📝 *Mi Pedido:*\n`;
-    carrito.forEach(producto => {
-        mensaje += `- ${producto.cantidad}x ${producto.nombre} ($${producto.precio * producto.cantidad})\n`;
+    totales.lineas.forEach(linea => {
+        mensaje += `- ${linea.cantidad}x ${linea.nombre} (${formatoCLP(linea.subtotal)})\n`;
     });
 
-    let costoExtras = 0;
-    let extrasSeleccionados = [];
-    document.querySelectorAll('.chk-extra').forEach(chk => {
-        if (chk.checked) {
-            extrasSeleccionados.push(`${chk.dataset.nombre} (+$${chk.value})`);
-            costoExtras += parseInt(chk.value);
-        }
-    });
-
-    if (extrasSeleccionados.length > 0) {
+    if (totales.extras.length > 0) {
         mensaje += `\n➕ *Extras agregados:*\n`;
-        extrasSeleccionados.forEach(extra => mensaje += `- ${extra}\n`);
+        totales.extras.forEach(extra => mensaje += `- ${extra.nombre} (+${formatoCLP(extra.precio)})\n`);
     }
 
-    if (instrucciones.trim() !== '') mensaje += `\n💬 *Instrucciones Especiales:* ${instrucciones}\n`;
+    if (instrucciones !== '') mensaje += `\n💬 *Instrucciones Especiales:* ${instrucciones}\n`;
 
-    const totalFinalReal = totalAcumulado + costoEnvio + costoExtras;
-    mensaje += `\n💰 *Total a pagar: $${totalFinalReal}*`;
+    if (totales.costoEnvio > 0) mensaje += `\n🛵 *Despacho:* ${formatoCLP(totales.costoEnvio)}`;
+    mensaje += `\n💰 *Total a pagar: ${formatoCLP(totales.total)}*`;
 
-    const mensajeCodificado = encodeURIComponent(mensaje);
-    const urlWhatsApp = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
+    const urlWhatsApp = `https://wa.me/${TELEFONO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
 
-    carrito = [];
-    document.querySelectorAll('.chk-extra').forEach(chk => chk.checked = false);
-    actualizarPantalla();
-    cerrarCarrito();
+    // Se abre WhatsApp dentro del mismo clic para que el navegador no lo bloquee.
+    const enlace = document.createElement('a');
+    enlace.href = urlWhatsApp;
+    enlace.target = '_blank';
+    enlace.rel = 'noopener';
+    document.body.appendChild(enlace);
+    enlace.click();
+    document.body.removeChild(enlace);
 
-    const enlaceFantasma = document.createElement('a');
-    enlaceFantasma.href = urlWhatsApp;
-    enlaceFantasma.target = '_blank';
-    document.body.appendChild(enlaceFantasma);
-    enlaceFantasma.click();
-    document.body.removeChild(enlaceFantasma);
+    // El carrito solo se vacía cuando el cliente confirma que envió el mensaje.
+    confirmar({
+        icon: 'question',
+        title: '¿Pudiste enviar tu pedido?',
+        html: `Si WhatsApp no se abrió, <a href="${urlWhatsApp}" target="_blank" rel="noopener">toca aquí para abrirlo de nuevo</a>.`,
+        text: 'Si WhatsApp no se abrió, vuelve a intentarlo.',
+        confirmButtonColor: COLOR_CONFIRMAR,
+        confirmButtonText: 'Sí, ya lo envié',
+        cancelButtonText: 'No, mantener mi pedido'
+    }).then(enviado => {
+        if (!enviado) return;
+        limpiarPedido();
+        cerrarCarrito();
+        avisoRapido('¡Gracias por tu pedido! 🍣');
+    });
 }
 
-window.onload = function() {
+// ---------- Inicio y eventos globales ----------
+window.addEventListener('DOMContentLoaded', () => {
     cargarMenu();
-    actualizarPantalla();
-};
+    toggleDireccion();
+    mostrarHorarioHoy();
+});
 
-window.addEventListener('click', function(event) {
-    const modalCarrito = document.getElementById('modal-carrito');
-    if (event.target === modalCarrito) {
+window.addEventListener('click', event => {
+    if (event.target === document.getElementById('modal-carrito')) cerrarCarrito();
+});
+
+// Teclado dentro del carrito: Escape cierra y Tab no se sale del panel.
+document.addEventListener('keydown', event => {
+    const modal = document.getElementById('modal-carrito');
+    if (!modal.classList.contains('activo')) return;
+    // Si hay un aviso de SweetAlert abierto, él maneja el teclado.
+    if (window.Swal && Swal.isVisible()) return;
+
+    if (event.key === 'Escape') {
         cerrarCarrito();
+        return;
+    }
+
+    if (event.key === 'Tab') {
+        const enfocables = Array.from(modal.querySelectorAll('button, input, select, textarea, a[href]'))
+            .filter(el => !el.disabled && el.offsetParent !== null);
+        if (enfocables.length === 0) return;
+        const primero = enfocables[0];
+        const ultimo = enfocables[enfocables.length - 1];
+
+        if (event.shiftKey && document.activeElement === primero) {
+            event.preventDefault();
+            ultimo.focus();
+        } else if (!event.shiftKey && document.activeElement === ultimo) {
+            event.preventDefault();
+            primero.focus();
+        }
     }
 });
